@@ -1,0 +1,51 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Exceptions\InsufficientStockException;
+use App\Models\Barang;
+use App\Models\StockBatch;
+use App\Services\InventoryService;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+
+class StockBatchController extends Controller
+{
+    public function __construct(protected InventoryService $inventory) {}
+
+    /**
+     * Catat penyusutan (write-off) untuk sebagian/seluruh sisa satu batch.
+     * Dipakai saat barang kedaluwarsa, rusak, atau hilang sehingga tidak
+     * bisa lagi dijual namun perlu dikeluarkan dari catatan stok.
+     */
+    public function penyusutan(Request $request, Barang $barang, StockBatch $batch)
+    {
+        abort_unless($batch->barang_id === $barang->id, 404);
+
+        if ($batch->qty_tersisa <= 0) {
+            return back()->with('error', "Batch \"{$batch->kode_batch}\" sudah tidak memiliki sisa stok.");
+        }
+
+        $validated = $request->validate([
+            'qty' => ['required', 'integer', 'min:1', 'max:'.$batch->qty_tersisa],
+            'alasan' => ['required', Rule::in(['kedaluwarsa', 'rusak', 'hilang', 'lainnya'])],
+            'catatan' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $labelAlasan = [
+            'kedaluwarsa' => 'Kedaluwarsa',
+            'rusak' => 'Rusak',
+            'hilang' => 'Hilang',
+            'lainnya' => 'Lainnya',
+        ][$validated['alasan']];
+
+        try {
+            $this->inventory->catatPenyusutan($batch, (int) $validated['qty'], $labelAlasan, $validated['catatan'] ?? null);
+        } catch (InsufficientStockException $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
+        return redirect()->route('barang.show', $barang)
+            ->with('success', "Penyusutan batch \"{$batch->kode_batch}\" berhasil dicatat.");
+    }
+}
