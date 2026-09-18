@@ -170,7 +170,7 @@
 <div class="main-wrapper">
     <header class="topbar">
         <div class="topbar-breadcrumb">
-            <span>Toko Ratih</span>
+            <span>SiWarung</span>
             <span>›</span>
             <span class="current">{{ $title ?? 'Dashboard' }}</span>
         </div>
