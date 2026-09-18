@@ -5,6 +5,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\StockBatchController;
+use App\Http\Controllers\StockImportController;
 use App\Http\Controllers\StockMovementController;
 use App\Http\Controllers\TransaksiController;
 use App\Models\Barang;
@@ -28,6 +29,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('stock-movements', [StockMovementController::class, 'index'])->name('stock-movements.index');
     Route::get('stock-movements/create', [StockMovementController::class, 'create'])->name('stock-movements.create');
     Route::post('stock-movements', [StockMovementController::class, 'store'])->name('stock-movements.store');
+
+    // Import massal stok masuk (dari nota distributor, via CSV)
+    Route::get('stok-import', [StockImportController::class, 'create'])->name('stok-import.create');
+    Route::get('stok-import/template', [StockImportController::class, 'template'])->name('stok-import.template');
+    Route::post('stok-import', [StockImportController::class, 'store'])->name('stok-import.store');
 
     // Transaksi
     Route::resource('transaksi', TransaksiController::class);

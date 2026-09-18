@@ -123,6 +123,10 @@
                 <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M4 4h8M4 8h8M4 12h8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
                 Manajemen Stok
             </a>
+            <a href="{{ route('stok-import.create') }}" class="nav-item {{ request()->routeIs('stok-import.*') ? 'active' : '' }}">
+                <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M8 2v8m0 0-3-3m3 3 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.5 11v1.5A1.5 1.5 0 0 0 4 14h8a1.5 1.5 0 0 0 1.5-1.5V11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+                Import Stok Masuk
+            </a>
             <a href="{{ route('dashboard') }}#kedaluwarsa" class="nav-item {{ request()->routeIs('laporan.penyusutan') ? 'active' : '' }}">
                 <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.3" stroke="currentColor" stroke-width="1.3"/><path d="M8 4.5v4l2.5 1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
                 Barang Kedaluwarsa
