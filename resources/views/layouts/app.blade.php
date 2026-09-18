@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $title ?? 'Dashboard' }} — Toko Ratih</title>
+    <title>{{ $title ?? 'Dashboard' }} — SiWarung</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
@@ -84,9 +84,9 @@
                     <rect x="5.5" y="9" width="5" height="4" rx=".5" fill="#185FA5"/>
                 </svg>
             </div>
-            <span class="brand-name">Toko Ratih</span>
+            <span class="brand-name">SiWarung</span>
         </div>
-        <div class="brand-sub">Sistem Manajemen Grosir</div>
+        <div class="brand-sub">Warung Bu Ratih</div>
     </div>
 
     <nav style="flex:1;">
