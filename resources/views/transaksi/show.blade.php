@@ -3,7 +3,7 @@
 @section('content')
 
 <div style="margin-bottom:20px;">
-    <a href="{{ route('transaksi.index') }}" style="font-size:12px;color:var(--text-muted);text-decoration:none;display:inline-block;margin-bottom:10px;">← Kembali ke Daftar Transaksi</a>
+    <a href="{{ route('transaksi.index') }}" style="font-size:12px;color:var(--text-muted);text-decoration:none;display:inline-block;margin-bottom:10px;"><x-link-arrow direction="left" />Kembali ke Daftar Transaksi</a>
     <div style="display:flex;align-items:center;justify-content:space-between;">
         <div>
             <h1 style="font-size:18px;font-weight:600;color:var(--text-primary);">{{ $transaksi->kode_transaksi }}</h1>

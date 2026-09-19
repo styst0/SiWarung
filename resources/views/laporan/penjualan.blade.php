@@ -3,7 +3,7 @@
 @section('content')
 
 {{-- HEADER --}}
-<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;">
+<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
     <div>
         <h1 style="font-size:18px;font-weight:600;color:var(--text-primary);">Laporan Penjualan</h1>
         <p style="font-size:13px;color:var(--text-secondary);margin-top:3px;">
@@ -29,16 +29,22 @@
             </select>
 
             {{-- Harian: pilih rentang tanggal --}}
-            <div id="filter-harian" style="{{ $periode === 'harian' ? '' : 'display:none;' }}display:flex;gap:8px;align-items:center;">
-                <input type="date" name="dari" value="{{ $dari }}"
-                    style="padding:7px 12px;border:var(--border);border-radius:var(--radius-md);font-size:13px;font-family:var(--font);color:var(--text-primary);outline:none;">
-                <span style="font-size:12px;color:var(--text-muted);">s/d</span>
-                <input type="date" name="sampai" value="{{ $sampai }}"
-                    style="padding:7px 12px;border:var(--border);border-radius:var(--radius-md);font-size:13px;font-family:var(--font);color:var(--text-primary);outline:none;">
+            <div id="filter-harian" style="display:{{ $periode === 'harian' ? 'flex' : 'none' }};gap:8px;align-items:center;flex-wrap:wrap;">
+                <span style="display:inline-flex;align-items:center;gap:6px;">
+                    <span style="font-size:12px;color:var(--text-muted);white-space:nowrap;">Dari:</span>
+                    <input type="date" name="dari" value="{{ $dari }}"
+                        style="padding:7px 12px;border:var(--border);border-radius:var(--radius-md);font-size:13px;font-family:var(--font);color:var(--text-primary);outline:none;">
+                </span>
+                <span style="display:inline-flex;align-items:center;gap:6px;">
+                    <span style="font-size:12px;color:var(--text-muted);white-space:nowrap;">Sampai:</span>
+                    <input type="date" name="sampai" value="{{ $sampai }}"
+                        style="padding:7px 12px;border:var(--border);border-radius:var(--radius-md);font-size:13px;font-family:var(--font);color:var(--text-primary);outline:none;">
+                </span>
             </div>
 
             {{-- Bulanan: pilih bulan --}}
-            <div id="filter-bulanan" style="{{ $periode === 'bulanan' ? '' : 'display:none;' }}">
+            <div id="filter-bulanan" style="display:{{ $periode === 'bulanan' ? 'flex' : 'none' }};gap:8px;align-items:center;">
+                <span style="font-size:12px;color:var(--text-muted);white-space:nowrap;">Bulan:</span>
                 <input type="month" name="bulan" value="{{ request('bulan', \Carbon\Carbon::now()->format('Y-m')) }}"
                     style="padding:7px 12px;border:var(--border);border-radius:var(--radius-md);font-size:13px;font-family:var(--font);color:var(--text-primary);outline:none;">
             </div>
@@ -177,7 +183,7 @@
     <div class="card">
         <div class="card-header">
             <span class="card-title">Daftar Transaksi</span>
-            <a href="{{ route('transaksi.index') }}" class="card-action">Lihat semua →</a>
+            <a href="{{ route('transaksi.index') }}" class="card-action">Lihat semua<x-link-arrow /></a>
         </div>
         <div style="overflow-x:auto;">
             <table style="width:100%;border-collapse:collapse;font-size:12px;">
@@ -230,7 +236,7 @@
 <script>
 function togglePeriode(val) {
     document.getElementById('filter-harian').style.display  = val === 'harian'  ? 'flex' : 'none';
-    document.getElementById('filter-bulanan').style.display = val === 'bulanan' ? 'block' : 'none';
+    document.getElementById('filter-bulanan').style.display = val === 'bulanan' ? 'flex' : 'none';
 }
 </script>
 @endpush

@@ -64,18 +64,55 @@
         .alert-warning { background: var(--warning-bg); color: var(--warning-text); border: 1px solid #FAC775; }
         .alert-danger  { background: var(--danger-bg);  color: var(--danger-text);  border: 1px solid #F7C1C1; }
         .alert-success { background: var(--success-bg); color: var(--success-text); border: 1px solid #C0DD97; }
+        .hamburger-btn { display: none; align-items: center; justify-content: center; width: 32px; height: 32px; border: var(--border); border-radius: var(--radius-md); background: var(--bg-white); color: var(--text-secondary); cursor: pointer; flex-shrink: 0; }
+        .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(26,26,24,.4); z-index: 90; }
+        .pg-nav { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+        .pg-item { display: inline-flex; align-items: center; justify-content: center; min-width: 28px; height: 28px; padding: 0 8px; border: var(--border); border-radius: var(--radius-md); background: var(--bg-white); color: var(--text-secondary); font-size: 12px; font-weight: 500; font-family: var(--font); text-decoration: none; line-height: 1; }
+        .pg-item:hover { background: var(--bg-hover); }
+        .pg-item.pg-current { background: var(--brand); border-color: var(--brand); color: #fff; cursor: default; }
+        .pg-item.pg-disabled { color: var(--text-muted); cursor: not-allowed; opacity: .5; }
+        .pg-item.pg-disabled:hover { background: var(--bg-white); }
+        .pg-dots { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 28px; color: var(--text-muted); font-size: 12px; }
         @media print {
             .sidebar, .topbar { display: none !important; }
             .main-wrapper { margin-left: 0 !important; }
             .page-content { padding: 0 !important; }
             .no-print { display: none !important; }
         }
+        @media (max-width: 860px) {
+            .sidebar { transform: translateX(-100%); transition: transform .2s ease; box-shadow: 0 0 0 1px transparent; }
+            .sidebar.sidebar-open { transform: translateX(0); box-shadow: 2px 0 16px rgba(0,0,0,.12); }
+            .main-wrapper { margin-left: 0; }
+            .hamburger-btn { display: inline-flex; }
+            .sidebar-overlay.is-open { display: block; }
+            .topbar { padding: 0 14px; gap: 10px; }
+            .topbar-breadcrumb { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+            .page-content { padding: 16px 14px; }
+        }
+        @media (max-width: 700px) {
+            [style*="grid-template-columns"] { grid-template-columns: 1fr !important; }
+            [style*="grid-template-columns"] > * { min-width: 0; }
+            .laba-rugi-bagan { flex-direction: column !important; }
+            .laba-rugi-bagan > div { border-right: none !important; border-bottom: var(--border); }
+            .laba-rugi-bagan > div:last-child { border-bottom: none !important; }
+            .stats-grid-2up { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+            .alert { flex-wrap: wrap; row-gap: 6px; }
+            .alert strong { white-space: nowrap; }
+            .alert > a { margin-left: 0 !important; }
+        }
+        @media (max-width: 480px) {
+            .topbar-date { display: none; }
+            .card-header { flex-wrap: wrap; gap: 8px; }
+            .stock-week-grid { gap: 4px !important; }
+        }
     </style>
     @stack('styles')
 </head>
 <body>
 
-<aside class="sidebar">
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<aside class="sidebar" id="sidebar">
     <div class="sidebar-brand">
         <div class="brand-logo">
             <div class="brand-icon">
@@ -89,7 +126,7 @@
         <div class="brand-sub">Warung Bu Ratih</div>
     </div>
 
-    <nav style="flex:1;">
+    <nav style="flex:1;" id="sidebarNav">
         <div class="nav-section">
             <div class="nav-label">Utama</div>
             <a href="{{ route('dashboard') }}" class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
@@ -127,7 +164,7 @@
                 <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M8 2v8m0 0-3-3m3 3 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.5 11v1.5A1.5 1.5 0 0 0 4 14h8a1.5 1.5 0 0 0 1.5-1.5V11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
                 Import Stok Masuk
             </a>
-            <a href="{{ route('dashboard') }}#kedaluwarsa" class="nav-item {{ request()->routeIs('laporan.penyusutan') ? 'active' : '' }}">
+            <a href="{{ route('barang-kedaluwarsa.index') }}" class="nav-item {{ request()->routeIs('barang-kedaluwarsa.*') ? 'active' : '' }}">
                 <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.3" stroke="currentColor" stroke-width="1.3"/><path d="M8 4.5v4l2.5 1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
                 Barang Kedaluwarsa
                 @if(isset($expiryAlertCount) && $expiryAlertCount > 0)
@@ -173,10 +210,15 @@
     
 <div class="main-wrapper">
     <header class="topbar">
-        <div class="topbar-breadcrumb">
-            <span>SiWarung</span>
-            <span>›</span>
-            <span class="current">{{ $title ?? 'Dashboard' }}</span>
+        <div style="display:flex;align-items:center;gap:12px;min-width:0;">
+            <button type="button" class="hamburger-btn" id="hamburgerBtn" aria-label="Buka menu">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            </button>
+            <div class="topbar-breadcrumb">
+                <span>SiWarung</span>
+                <span>›</span>
+                <span class="current">{{ $title ?? 'Dashboard' }}</span>
+            </div>
         </div>
         <div class="topbar-right">
             <span class="topbar-date">{{ \Carbon\Carbon::now()->locale('id')->isoFormat('dddd, D MMMM YYYY') }}</span>
@@ -200,6 +242,32 @@
         @yield('content')
     </main>
 </div>
+
+<script>
+    (function () {
+        var sidebar = document.getElementById('sidebar');
+        var overlay = document.getElementById('sidebarOverlay');
+        var btn = document.getElementById('hamburgerBtn');
+        var nav = document.getElementById('sidebarNav');
+
+        function closeSidebar() {
+            sidebar.classList.remove('sidebar-open');
+            overlay.classList.remove('is-open');
+        }
+        function toggleSidebar() {
+            sidebar.classList.toggle('sidebar-open');
+            overlay.classList.toggle('is-open');
+        }
+
+        if (btn) { btn.addEventListener('click', toggleSidebar); }
+        if (overlay) { overlay.addEventListener('click', closeSidebar); }
+        if (nav) {
+            nav.addEventListener('click', function (e) {
+                if (e.target.closest('a')) { closeSidebar(); }
+            });
+        }
+    })();
+</script>
 
 @stack('scripts')
 </body>

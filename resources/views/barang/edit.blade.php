@@ -3,9 +3,7 @@
 @section('content')
 
 <div style="margin-bottom:20px;">
-    <a href="{{ route('barang.index') }}" style="font-size:12px;color:var(--text-muted);text-decoration:none;display:inline-flex;align-items:center;gap:4px;margin-bottom:10px;">
-        ← Kembali ke Data Barang
-    </a>
+    <a href="{{ route('barang.index') }}" style="font-size:12px;color:var(--text-muted);text-decoration:none;display:inline-block;margin-bottom:10px;"><x-link-arrow direction="left" />Kembali ke Data Barang</a>
     <h1 style="font-size:18px;font-weight:600;color:var(--text-primary);">Edit Barang</h1>
     <p style="font-size:13px;color:var(--text-secondary);margin-top:3px;">{{ $barang->kode_barang }} — {{ $barang->nama_barang }}</p>
 </div>

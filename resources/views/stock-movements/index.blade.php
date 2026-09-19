@@ -2,7 +2,7 @@
 
 @section('content')
 
-<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;">
+<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
     <div>
         <h1 style="font-size:18px;font-weight:600;color:var(--text-primary);">Manajemen Stok</h1>
         <p style="font-size:13px;color:var(--text-secondary);margin-top:3px;">Lihat riwayat stok masuk dan keluar, atau tambahkan penyesuaian.</p>
@@ -26,8 +26,14 @@
                 </select>
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-                <input type="date" name="dari" value="{{ request('dari') }}" style="padding:10px 12px;border:1px solid #D2D2CC;border-radius:var(--radius-md);font-size:13px;" />
-                <input type="date" name="sampai" value="{{ request('sampai') }}" style="padding:10px 12px;border:1px solid #D2D2CC;border-radius:var(--radius-md);font-size:13px;" />
+                <div>
+                    <label style="display:block;font-size:12px;color:var(--text-muted);margin-bottom:6px;">Dari Tanggal</label>
+                    <input type="date" name="dari" value="{{ request('dari') }}" style="width:100%;padding:10px 12px;border:1px solid #D2D2CC;border-radius:var(--radius-md);font-size:13px;" />
+                </div>
+                <div>
+                    <label style="display:block;font-size:12px;color:var(--text-muted);margin-bottom:6px;">Sampai Tanggal</label>
+                    <input type="date" name="sampai" value="{{ request('sampai') }}" style="width:100%;padding:10px 12px;border:1px solid #D2D2CC;border-radius:var(--radius-md);font-size:13px;" />
+                </div>
             </div>
             <button type="submit" class="btn btn-outline" style="width:100%;">Filter</button>
         </form>
@@ -78,7 +84,14 @@
             </table>
         </div>
 
-        <div style="margin-top:18px;">{{ $stockMovements->links() }}</div>
+        @if($stockMovements->hasPages())
+        <div style="margin-top:18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+            <div style="font-size:12px;color:var(--text-muted);">
+                Menampilkan {{ $stockMovements->firstItem() }}–{{ $stockMovements->lastItem() }} dari {{ $stockMovements->total() }} pergerakan
+            </div>
+            {{ $stockMovements->links() }}
+        </div>
+        @endif
     </div>
 </div>
 

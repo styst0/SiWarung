@@ -3,7 +3,7 @@
 @section('content')
 
 {{-- HEADER --}}
-<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;">
+<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
     <div>
         <h1 style="font-size:18px;font-weight:600;color:var(--text-primary);">Laporan Penyusutan</h1>
         <p style="font-size:13px;color:var(--text-secondary);margin-top:3px;">
@@ -11,16 +11,21 @@
             · Barang kedaluwarsa, rusak, atau hilang yang dikeluarkan dari stok
         </p>
     </div>
-    <div style="display:flex;gap:8px;align-items:center;">
-        <form method="GET" action="{{ route('laporan.penyusutan') }}" style="display:flex;gap:8px;align-items:center;">
+    <button onclick="window.print()" class="btn btn-outline">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="2" y="5" width="12" height="8" rx="1" stroke="currentColor" stroke-width="1.3"/><path d="M5 5V3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M5 11h6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        Cetak
+    </button>
+</div>
+
+{{-- FILTER --}}
+<div class="card" style="margin-bottom:16px;">
+    <div class="card-body" style="padding:12px 18px;">
+        <form method="GET" action="{{ route('laporan.penyusutan') }}" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <span style="font-size:12px;color:var(--text-muted);white-space:nowrap;">Bulan:</span>
             <input type="month" name="bulan" value="{{ $bulan }}"
                 style="padding:7px 12px;border:var(--border);border-radius:var(--radius-md);font-size:13px;font-family:var(--font);color:var(--text-primary);outline:none;">
             <button type="submit" class="btn btn-primary" style="padding:7px 16px;">Tampilkan</button>
         </form>
-        <button onclick="window.print()" class="btn btn-outline">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="2" y="5" width="12" height="8" rx="1" stroke="currentColor" stroke-width="1.3"/><path d="M5 5V3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M5 11h6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-            Cetak
-        </button>
     </div>
 </div>
 
@@ -121,7 +126,14 @@
             </table>
         </div>
 
-        <div style="margin-top:18px;">{{ $riwayat->links() }}</div>
+        @if($riwayat->hasPages())
+        <div style="margin-top:18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+            <div style="font-size:12px;color:var(--text-muted);">
+                Menampilkan {{ $riwayat->firstItem() }}–{{ $riwayat->lastItem() }} dari {{ $riwayat->total() }} penyusutan
+            </div>
+            {{ $riwayat->links() }}
+        </div>
+        @endif
     </div>
 </div>
 

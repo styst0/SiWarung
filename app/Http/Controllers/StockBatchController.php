@@ -14,6 +14,32 @@ class StockBatchController extends Controller
     public function __construct(protected InventoryService $inventory) {}
 
     /**
+     * Daftar lengkap batch yang sudah lewat tanggal kedaluwarsa dan yang
+     * akan kedaluwarsa dalam 7 hari ke depan. Dashboard hanya menampilkan
+     * cuplikan (maks. 10 per kategori); halaman ini menampilkan semuanya
+     * dengan pagination terpisah untuk tiap kategori.
+     */
+    public function kedaluwarsa()
+    {
+        $batchSudahKedaluwarsa = StockBatch::with('barang')
+            ->aktif()->sudahKedaluwarsa()
+            ->orderBy('tanggal_kedaluwarsa')
+            ->paginate(12, ['*'], 'sudah_page')
+            ->withQueryString();
+
+        $batchAkanKedaluwarsa = StockBatch::with('barang')
+            ->aktif()->akanKedaluwarsa()
+            ->orderBy('tanggal_kedaluwarsa')
+            ->paginate(12, ['*'], 'akan_page')
+            ->withQueryString();
+
+        return view('barang-kedaluwarsa.index', compact(
+            'batchSudahKedaluwarsa',
+            'batchAkanKedaluwarsa',
+        ))->with('title', 'Barang Kedaluwarsa');
+    }
+
+    /**
      * Catat penyusutan (write-off) untuk sebagian/seluruh sisa satu batch.
      * Dipakai saat barang kedaluwarsa, rusak, atau hilang sehingga tidak
      * bisa lagi dijual namun perlu dikeluarkan dari catatan stok.

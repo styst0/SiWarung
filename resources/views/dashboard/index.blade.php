@@ -17,7 +17,7 @@
 <div class="alert alert-warning">
     <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M8 2L14 13H2L8 2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M8 7v3M8 11.5v.3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
     <strong>{{ $stockAlertCount }} barang</strong>&nbsp;mendekati batas stok minimum — segera lakukan pemesanan ulang ke supplier.
-    <a href="{{ route('barang.index') }}?filter=low_stock" style="margin-left:auto;font-weight:600;color:var(--warning-text);text-decoration:underline;white-space:nowrap;">Lihat barang →</a>
+    <a href="{{ route('barang.index') }}?filter=low_stock" style="margin-left:auto;font-weight:600;color:var(--warning-text);text-decoration:underline;white-space:nowrap;">Lihat barang<x-link-arrow /></a>
 </div>
 @endif
 
@@ -25,17 +25,17 @@
 <div class="alert alert-danger">
     <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.3"/><path d="M8 5v3M8 10v.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
     <strong>{{ $batchSudahKedaluwarsa->count() }} batch barang</strong>&nbsp;sudah melewati tanggal kedaluwarsa — segera catat sebagai penyusutan agar tidak terjual.
-    <a href="#kedaluwarsa" style="margin-left:auto;font-weight:600;color:var(--danger-text);text-decoration:underline;white-space:nowrap;">Lihat detail →</a>
+    <a href="{{ route('barang-kedaluwarsa.index') }}" style="margin-left:auto;font-weight:600;color:var(--danger-text);text-decoration:underline;white-space:nowrap;">Lihat detail<x-link-arrow /></a>
 </div>
 @elseif($batchAkanKedaluwarsa->count() > 0)
 <div class="alert alert-warning">
     <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.3"/><path d="M8 4.5v4l2.5 1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
     <strong>{{ $batchAkanKedaluwarsa->count() }} batch barang</strong>&nbsp;akan kedaluwarsa dalam 7 hari ke depan — prioritaskan untuk dijual lebih dulu.
-    <a href="#kedaluwarsa" style="margin-left:auto;font-weight:600;color:var(--warning-text);text-decoration:underline;white-space:nowrap;">Lihat detail →</a>
+    <a href="{{ route('barang-kedaluwarsa.index') }}" style="margin-left:auto;font-weight:600;color:var(--warning-text);text-decoration:underline;white-space:nowrap;">Lihat detail<x-link-arrow /></a>
 </div>
 @endif
 
-<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:20px;">
+<div class="stats-grid-2up" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:20px;">
     <div class="card">
         <div class="card-body">
             <div style="width:34px;height:34px;background:var(--info-bg);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;margin-bottom:12px;">
@@ -113,7 +113,7 @@
     <div class="card">
         <div class="card-header">
             <span class="card-title">Transaksi Terbaru</span>
-            <a href="{{ route('transaksi.index') }}" class="card-action">Lihat semua →</a>
+            <a href="{{ route('transaksi.index') }}" class="card-action">Lihat semua<x-link-arrow /></a>
         </div>
         <div style="padding:0 18px;">
             <div style="display:grid;grid-template-columns:1fr auto auto;gap:8px;padding:8px 0;font-size:11px;color:var(--text-muted);border-bottom:1px solid #F0F0EC;font-weight:600;text-transform:uppercase;letter-spacing:.03em;">
@@ -187,20 +187,20 @@
                 @php
                     $stockMax = max($stockMovement->max('total_in'), $stockMovement->max('total_out'), 1);
                 @endphp
-                <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:12px;align-items:end;min-height:180px;">
+                <div class="stock-week-grid" style="display:flex;gap:12px;align-items:end;min-height:180px;">
                     @foreach($stockMovement as $row)
-                        <div style="display:flex;flex-direction:column;gap:10px;align-items:center;">
-                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;align-items:end;height:140px;">
-                                <div style="width:100%;background:#EAF3DE;border-radius:8px 8px 0 0;display:flex;align-items:flex-end;justify-content:center;">
-                                    <div style="width:14px;height:{{ $stockMax ? round(($row['total_in'] / $stockMax) * 100) : 0 }}%;background:#1D9E75;border-radius:8px 8px 0 0;"></div>
+                        <div style="display:flex;flex-direction:column;gap:10px;align-items:center;flex:1;min-width:0;">
+                            <div style="display:flex;gap:6px;align-items:end;height:140px;width:100%;">
+                                <div style="flex:1;min-width:0;height:100%;background:#EAF3DE;border-radius:8px 8px 0 0;display:flex;align-items:flex-end;justify-content:center;">
+                                    <div style="width:60%;max-width:14px;height:{{ $stockMax ? round(($row['total_in'] / $stockMax) * 100) : 0 }}%;background:#1D9E75;border-radius:8px 8px 0 0;"></div>
                                 </div>
-                                <div style="width:100%;background:#FCEBEB;border-radius:8px 8px 0 0;display:flex;align-items:flex-end;justify-content:center;">
-                                    <div style="width:14px;height:{{ $stockMax ? round(($row['total_out'] / $stockMax) * 100) : 0 }}%;background:#A32D2D;border-radius:8px 8px 0 0;"></div>
+                                <div style="flex:1;min-width:0;height:100%;background:#FCEBEB;border-radius:8px 8px 0 0;display:flex;align-items:flex-end;justify-content:center;">
+                                    <div style="width:60%;max-width:14px;height:{{ $stockMax ? round(($row['total_out'] / $stockMax) * 100) : 0 }}%;background:#A32D2D;border-radius:8px 8px 0 0;"></div>
                                 </div>
                             </div>
-                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:11px;color:var(--text-secondary);width:100%;text-align:center;">
-                                <span style="color:#1D9E75;">{{ $row['total_in'] }}</span>
-                                <span style="color:#A32D2D;">{{ $row['total_out'] }}</span>
+                            <div style="display:flex;gap:4px;font-size:11px;color:var(--text-secondary);width:100%;text-align:center;">
+                                <span style="flex:1;min-width:0;overflow:hidden;color:#1D9E75;">{{ $row['total_in'] }}</span>
+                                <span style="flex:1;min-width:0;overflow:hidden;color:#A32D2D;">{{ $row['total_out'] }}</span>
                             </div>
                             <div style="font-size:11px;color:var(--text-muted);">{{ $row['tanggal'] }}</div>
                         </div>
@@ -234,7 +234,7 @@
 <div class="card" style="margin-bottom:12px;">
     <div class="card-header">
         <span class="card-title">Top Stok Tersedia</span>
-        <a href="{{ route('barang.index') }}" class="card-action">Kelola barang →</a>
+        <a href="{{ route('barang.index') }}" class="card-action">Kelola barang<x-link-arrow /></a>
     </div>
     <div class="card-body">
         @if($currentStockTop->isEmpty())
@@ -262,7 +262,7 @@
 <div class="card">
     <div class="card-header">
         <span class="card-title">Barang Perlu Restock</span>
-        <a href="{{ route('barang.index') }}" class="card-action">Kelola stok →</a>
+        <a href="{{ route('barang.index') }}" class="card-action">Kelola stok<x-link-arrow /></a>
     </div>
     <div style="padding:12px 18px;">
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;">
@@ -289,7 +289,7 @@
 <div class="card" id="kedaluwarsa" style="margin-top:12px;">
     <div class="card-header">
         <span class="card-title">Barang Kedaluwarsa &amp; Akan Kedaluwarsa</span>
-        <a href="{{ route('laporan.penyusutan') }}" class="card-action">Laporan penyusutan →</a>
+        <a href="{{ route('barang-kedaluwarsa.index') }}" class="card-action">Lihat semua<x-link-arrow /></a>
     </div>
     <div style="padding:12px 18px;">
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;">
@@ -300,7 +300,7 @@
                     {{ $batch->kode_batch }} · Sisa {{ $batch->qty_tersisa }} {{ $batch->barang->satuan }}
                 </div>
                 <span class="badge badge-danger">Kedaluwarsa {{ $batch->tanggal_kedaluwarsa->format('d M Y') }}</span>
-                <a href="{{ route('barang.show', $batch->barang) }}" style="display:block;margin-top:8px;font-size:11px;color:var(--danger-text);font-weight:600;">Catat penyusutan →</a>
+                <a href="{{ route('barang.show', $batch->barang) }}" style="display:block;margin-top:8px;font-size:11px;color:var(--danger-text);font-weight:600;">Catat penyusutan<x-link-arrow /></a>
             </div>
             @endforeach
             @foreach($batchAkanKedaluwarsa as $batch)
@@ -310,7 +310,7 @@
                     {{ $batch->kode_batch }} · Sisa {{ $batch->qty_tersisa }} {{ $batch->barang->satuan }}
                 </div>
                 <span class="badge badge-warning">Kedaluwarsa {{ $batch->tanggal_kedaluwarsa->format('d M Y') }}</span>
-                <a href="{{ route('barang.show', $batch->barang) }}" style="display:block;margin-top:8px;font-size:11px;color:var(--warning-text);font-weight:600;">Lihat barang →</a>
+                <a href="{{ route('barang.show', $batch->barang) }}" style="display:block;margin-top:8px;font-size:11px;color:var(--warning-text);font-weight:600;">Lihat barang<x-link-arrow /></a>
             </div>
             @endforeach
         </div>

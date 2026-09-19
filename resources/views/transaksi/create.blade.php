@@ -3,7 +3,7 @@
 @section('content')
 
 <div style="margin-bottom:20px;">
-    <a href="{{ route('transaksi.index') }}" style="font-size:12px;color:var(--text-muted);text-decoration:none;display:inline-block;margin-bottom:10px;">← Kembali ke Daftar Transaksi</a>
+    <a href="{{ route('transaksi.index') }}" style="font-size:12px;color:var(--text-muted);text-decoration:none;display:inline-block;margin-bottom:10px;"><x-link-arrow direction="left" />Kembali ke Daftar Transaksi</a>
     <h1 style="font-size:18px;font-weight:600;color:var(--text-primary);">Buat Transaksi Baru</h1>
     <p style="font-size:13px;color:var(--text-secondary);margin-top:3px;">Isi detail transaksi dan barang yang dibeli</p>
 </div>
@@ -113,6 +113,19 @@
 
 @endsection
 
+@push('styles')
+<style>
+    .qty-stepper { display: inline-flex; align-items: stretch; border: var(--border); border-radius: var(--radius-md); overflow: hidden; }
+    .qty-input { width: 38px; padding: 5px 2px; border: none; text-align: center; font-size: 13px; font-family: var(--font); color: var(--text-primary); outline: none; -moz-appearance: textfield; }
+    .qty-input::-webkit-outer-spin-button, .qty-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    .qty-btns { display: flex; flex-direction: column; width: 20px; border-left: var(--border); }
+    .qty-btn { flex: 1; display: flex; align-items: center; justify-content: center; padding: 0; background: none; border: none; cursor: pointer; color: var(--text-secondary); }
+    .qty-btn:first-child { border-bottom: var(--border); }
+    .qty-btn:hover:not(:disabled) { background: var(--bg-hover); color: var(--text-primary); }
+    .qty-btn:disabled { opacity: .35; cursor: not-allowed; }
+</style>
+@endpush
+
 @push('scripts')
 <script>
 let items = [];
@@ -183,9 +196,19 @@ function renderTabel() {
                 <input type="hidden" name="items[${idx}][harga_satuan]" value="${item.harga}">
             </td>
             <td style="padding:10px 12px;text-align:center;">
-                <input type="number" name="items[${idx}][qty]" value="${item.qty}" min="1" max="${item.stok}"
-                    onchange="ubahQty(${idx}, this.value)"
-                    style="width:60px;padding:5px 8px;border:var(--border);border-radius:var(--radius-md);text-align:center;font-size:13px;font-family:var(--font);outline:none;">
+                <div class="qty-stepper">
+                    <input type="number" name="items[${idx}][qty]" value="${item.qty}" min="1" max="${item.stok}"
+                        onchange="ubahQty(${idx}, this.value)"
+                        class="qty-input">
+                    <div class="qty-btns">
+                        <button type="button" class="qty-btn" onclick="tambahQty(${idx})" ${item.qty >= item.stok ? 'disabled' : ''} aria-label="Tambah qty">
+                            <svg width="8" height="8" viewBox="0 0 16 16" fill="none"><path d="M3 10l5-5 5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </button>
+                        <button type="button" class="qty-btn" onclick="kurangiQty(${idx})" ${item.qty <= 1 ? 'disabled' : ''} aria-label="Kurangi qty">
+                            <svg width="8" height="8" viewBox="0 0 16 16" fill="none"><path d="M3 6l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </button>
+                    </div>
+                </div>
             </td>
             <td style="padding:10px 12px;text-align:right;color:var(--text-secondary);">Rp ${formatRp(item.harga)}</td>
             <td style="padding:10px 12px;text-align:center;">
@@ -208,6 +231,14 @@ function ubahQty(idx, val) {
     const qty = Math.max(1, Math.min(parseInt(val) || 1, items[idx].stok));
     items[idx].qty = qty;
     renderTabel();
+}
+
+function tambahQty(idx) {
+    ubahQty(idx, items[idx].qty + 1);
+}
+
+function kurangiQty(idx) {
+    ubahQty(idx, items[idx].qty - 1);
 }
 
 function ubahDiskon(idx, val) {

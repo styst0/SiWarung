@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\StockBatch;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -21,6 +22,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // View pagination bawaan Laravel ("tailwind") memakai class Tailwind
+        // untuk ukuran ikon panahnya, yang tidak pernah ter-compile di app
+        // ini (lihat resources/views/vendor/pagination/siwarung.blade.php),
+        // jadi ikonnya tampil raksasa & tidak ter-style. Pakai view kustom
+        // sendiri sebagai default di semua halaman yang memanggil ->links().
+        Paginator::defaultView('vendor.pagination.siwarung');
+
         // Badge "barang akan/sudah kedaluwarsa" di sidebar (layouts.app)
         // dibagikan lewat view composer supaya tidak perlu dihitung ulang
         // secara manual di setiap controller, mengikuti pola stockAlertCount

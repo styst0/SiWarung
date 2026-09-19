@@ -3,7 +3,7 @@
 @section('content')
 
 <div style="margin-bottom:20px;">
-    <a href="{{ route('stock-movements.index') }}" style="font-size:12px;color:var(--text-muted);text-decoration:none;margin-bottom:10px;display:inline-block;">← Kembali ke Manajemen Stok</a>
+    <a href="{{ route('stock-movements.index') }}" style="font-size:12px;color:var(--text-muted);text-decoration:none;margin-bottom:10px;display:inline-block;"><x-link-arrow direction="left" />Kembali ke Manajemen Stok</a>
     <div style="display:flex;align-items:center;justify-content:space-between;">
         <div>
             <h1 style="font-size:18px;font-weight:600;color:var(--text-primary);">Tambah Penyesuaian Stok</h1>

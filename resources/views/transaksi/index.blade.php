@@ -41,10 +41,16 @@
         <form method="GET" action="{{ route('transaksi.index') }}" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
             <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari pelanggan atau kode..."
                 style="flex:1;min-width:180px;padding:7px 12px;border:var(--border);border-radius:var(--radius-md);font-size:13px;font-family:var(--font);color:var(--text-primary);outline:none;">
-            <input type="date" name="dari" value="{{ request('dari') }}"
-                style="padding:7px 12px;border:var(--border);border-radius:var(--radius-md);font-size:13px;font-family:var(--font);color:var(--text-primary);outline:none;">
-            <input type="date" name="sampai" value="{{ request('sampai') }}"
-                style="padding:7px 12px;border:var(--border);border-radius:var(--radius-md);font-size:13px;font-family:var(--font);color:var(--text-primary);outline:none;">
+            <span style="display:inline-flex;align-items:center;gap:6px;">
+                <span style="font-size:12px;color:var(--text-muted);white-space:nowrap;">Dari:</span>
+                <input type="date" name="dari" value="{{ request('dari') }}"
+                    style="padding:7px 12px;border:var(--border);border-radius:var(--radius-md);font-size:13px;font-family:var(--font);color:var(--text-primary);outline:none;">
+            </span>
+            <span style="display:inline-flex;align-items:center;gap:6px;">
+                <span style="font-size:12px;color:var(--text-muted);white-space:nowrap;">Sampai:</span>
+                <input type="date" name="sampai" value="{{ request('sampai') }}"
+                    style="padding:7px 12px;border:var(--border);border-radius:var(--radius-md);font-size:13px;font-family:var(--font);color:var(--text-primary);outline:none;">
+            </span>
             <select name="status"
                 style="padding:7px 12px;border:var(--border);border-radius:var(--radius-md);font-size:13px;font-family:var(--font);color:var(--text-primary);background:var(--bg-white);outline:none;">
                 <option value="">Semua Status</option>
