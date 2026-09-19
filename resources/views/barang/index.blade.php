@@ -13,7 +13,6 @@
     </a>
 </div>
 
-{{-- FILTER --}}
 <div class="card" style="margin-bottom:16px;">
     <div class="card-body" style="padding:12px 18px;">
         <form method="GET" action="{{ route('barang.index') }}" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
@@ -42,7 +41,6 @@
     </div>
 </div>
 
-{{-- TABEL --}}
 <div class="card">
     <div style="overflow-x:auto;">
         <table style="width:100%;border-collapse:collapse;font-size:13px;">

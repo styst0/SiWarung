@@ -10,6 +10,7 @@ use App\Models\Transaksi;
 use App\Services\InventoryService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class TransaksiController extends Controller
@@ -61,7 +62,7 @@ class TransaksiController extends Controller
         $request->validate([
             'pelanggan' => 'nullable|string|max:100',
             'status' => 'required|in:lunas,piutang',
-            'total_bayar' => 'required|integer|min:0',
+            'total_bayar' => ['nullable', 'integer', 'min:0', Rule::requiredIf($request->input('status') === 'lunas')],
             'items' => 'required|array|min:1',
             'items.*.barang_id' => 'required|exists:barangs,id',
             'items.*.qty' => 'required|integer|min:1',
@@ -69,10 +70,6 @@ class TransaksiController extends Controller
             'items.*.diskon' => 'nullable|integer|min:0|max:100',
         ]);
 
-        // Validasi ketersediaan stok (berbasis sisa batch) untuk SEMUA item
-        // lebih dulu, sebelum ada satu pun perubahan disimpan. Beberapa
-        // baris item bisa merujuk barang yang sama, jadi qty dijumlahkan
-        // per barang dulu.
         $qtyPerBarang = collect($request->items)
             ->groupBy('barang_id')
             ->map(fn ($items) => $items->sum('qty'));
@@ -105,8 +102,8 @@ class TransaksiController extends Controller
                 $transaksi = Transaksi::create([
                     'pelanggan' => $request->pelanggan,
                     'total_harga' => $totalHarga,
-                    'total_bayar' => $request->total_bayar,
-                    'kembalian' => $request->total_bayar - $totalHarga,
+                    'total_bayar' => $request->total_bayar ?? 0,
+                    'kembalian' => ($request->total_bayar ?? 0) - $totalHarga,
                     'status' => $request->status,
                     'catatan' => $request->catatan,
                     'user_id' => auth()->id(),
@@ -124,10 +121,6 @@ class TransaksiController extends Controller
                         'subtotal' => $item['subtotal'],
                     ]);
 
-                    // Konsumsi stok secara FIFO: ambil dari batch penerimaan
-                    // paling lama dulu. Rincian batch yang terpakai dicatat
-                    // supaya HPP (harga pokok penjualan) bisa dihitung akurat
-                    // per batch, bukan hanya dari harga barang saat ini.
                     $rincianBatch = $this->inventory->konsumsiStok($barang, $item['qty'], 'penjualan', $transaksi);
 
                     foreach ($rincianBatch as $penggunaan) {
@@ -171,8 +164,7 @@ class TransaksiController extends Controller
         $transaksi->update(['status' => $request->status]);
 
         if ($request->status === 'batal' && $oldStatus !== 'batal') {
-            // Stok dikembalikan tepat ke batch asalnya (bukan sekadar
-            // menambah angka stok) supaya riwayat FIFO tetap konsisten.
+
             foreach ($transaksi->detailTransaksi as $detail) {
                 $this->inventory->pulihkanStokDetailTransaksi($detail, 'pembatalan');
             }

@@ -9,7 +9,6 @@
 
 <div style="max-width:560px;display:flex;flex-direction:column;gap:14px;">
 
-    {{-- UPDATE NAMA & EMAIL --}}
     <div class="card">
         <div class="card-header"><span class="card-title">Informasi Akun</span></div>
         <div class="card-body">
@@ -39,7 +38,6 @@
         </div>
     </div>
 
-    {{-- UPDATE PASSWORD --}}
     <div class="card">
         <div class="card-header"><span class="card-title">Ubah Password</span></div>
         <div class="card-body">
@@ -75,7 +73,6 @@
         </div>
     </div>
 
-    {{-- HAPUS AKUN --}}
     <div class="card" style="border-color:#F7C1C1;">
         <div class="card-header" style="border-color:#F7C1C1;"><span class="card-title" style="color:var(--danger-text);">Hapus Akun</span></div>
         <div class="card-body">

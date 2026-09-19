@@ -3,19 +3,10 @@
 namespace Database\Factories;
 
 use App\Models\Barang;
-use App\Models\StockBatch;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends Factory<StockBatch>
- */
 class StockBatchFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         $qty = $this->faker->numberBetween(10, 50);

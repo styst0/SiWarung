@@ -2,7 +2,6 @@
 
 @section('content')
 
-{{-- HEADER --}}
 <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
     <div>
         <h1 style="font-size:18px;font-weight:600;color:var(--text-primary);">Laporan Penyusutan</h1>
@@ -17,7 +16,6 @@
     </button>
 </div>
 
-{{-- FILTER --}}
 <div class="card" style="margin-bottom:16px;">
     <div class="card-body" style="padding:12px 18px;">
         <form method="GET" action="{{ route('laporan.penyusutan') }}" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
@@ -29,7 +27,6 @@
     </div>
 </div>
 
-{{-- RINGKASAN --}}
 <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:16px;">
     <div class="card">
         <div class="card-body">
@@ -55,7 +52,6 @@
 </div>
 
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
-    {{-- PER KATEGORI --}}
     <div class="card">
         <div class="card-header"><span class="card-title">Penyusutan per Kategori</span></div>
         <div class="card-body">
@@ -71,7 +67,6 @@
         </div>
     </div>
 
-    {{-- PER BARANG --}}
     <div class="card">
         <div class="card-header"><span class="card-title">Barang Paling Banyak Susut</span></div>
         <div class="card-body">
@@ -91,7 +86,6 @@
     </div>
 </div>
 
-{{-- RIWAYAT --}}
 <div class="card">
     <div class="card-header"><span class="card-title">Riwayat Penyusutan</span></div>
     <div class="card-body">

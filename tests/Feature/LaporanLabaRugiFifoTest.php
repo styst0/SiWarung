@@ -8,8 +8,7 @@ use App\Services\InventoryService;
 
 test('laba rugi HPP is calculated from the actual FIFO batch cost, not the current barang price', function () {
     $user = User::factory()->create();
-    // Harga barang "saat ini" sengaja dibuat berbeda dari harga beli batch,
-    // supaya jelas kalau laporan memang memakai harga batch, bukan snapshot ini.
+
     $barang = Barang::factory()->create(['stok' => 0, 'harga_beli' => 99000, 'harga_jual' => 15000]);
     $inventory = app(InventoryService::class);
     $inventory->terimaBarang($barang, ['qty' => 5, 'harga_beli_satuan' => 6000, 'tanggal_terima' => now()->subDays(2)->toDateString()]);
@@ -26,7 +25,7 @@ test('laba rugi HPP is calculated from the actual FIFO batch cost, not the curre
     $response = $this->actingAs($user)->get(route('laporan.laba-rugi', ['bulan' => now()->format('Y-m')]));
 
     $response->assertOk();
-    // FIFO: 5 unit @ 6000 + 3 unit @ 7000 = 51.000, BUKAN 8 x 99.000
+
     $expectedHpp = 5 * 6000 + 3 * 7000;
     $response->assertViewHas('hpp', $expectedHpp);
 });
@@ -51,7 +50,6 @@ test('laba rugi falls back to the barang price for legacy sales with no batch re
     $response = $this->actingAs($user)->get(route('laporan.laba-rugi', ['bulan' => $transaksi->created_at->format('Y-m')]));
 
     $response->assertOk();
-    // Tidak ada baris detail_transaksi_batches untuk transaksi ini, jadi
-    // jatuh kembali ke qty x harga_beli barang saat ini (perilaku lama).
+
     $response->assertViewHas('hpp', 5 * 4000);
 });

@@ -5,12 +5,6 @@ namespace App\Console\Commands;
 use App\Models\StockBatch;
 use Illuminate\Console\Command;
 
-/**
- * Peringatan otomatis: mendaftar batch barang yang sudah kedaluwarsa
- * atau akan kedaluwarsa dalam N hari ke depan. Dijalankan berkala lewat
- * scheduler (lihat routes/console.php) dan bisa juga dipanggil manual
- * oleh pemilik warung, misalnya sebelum belanja stok baru.
- */
 class CekBarangKedaluwarsa extends Command
 {
     protected $signature = 'barang:cek-kedaluwarsa {--hari=7 : Jumlah hari ke depan yang dianggap "akan kedaluwarsa"}';

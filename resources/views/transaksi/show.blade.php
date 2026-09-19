@@ -24,7 +24,6 @@
 
 <div style="display:grid;grid-template-columns:1fr 320px;gap:14px;align-items:start;">
 
-    {{-- DETAIL BARANG --}}
     <div class="card">
         <div class="card-header"><span class="card-title">Barang yang Dibeli</span></div>
         <div style="overflow-x:auto;">
@@ -68,7 +67,6 @@
         </div>
     </div>
 
-    {{-- INFO TRANSAKSI --}}
     <div style="display:flex;flex-direction:column;gap:14px;">
         <div class="card">
             <div class="card-header"><span class="card-title">Info Pembayaran</span></div>
@@ -99,7 +97,6 @@
             </div>
         </div>
 
-        {{-- UBAH STATUS --}}
         @if($transaksi->status !== 'batal')
         <div class="card">
             <div class="card-header"><span class="card-title">Ubah Status</span></div>

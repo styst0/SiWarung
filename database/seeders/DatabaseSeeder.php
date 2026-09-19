@@ -17,10 +17,6 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Ratih', 'password' => Hash::make('password')]
         );
 
-        // 'exp' = selisih hari dari hari ini untuk tanggal_kedaluwarsa batch
-        // awal (negatif = sudah lewat, null = tidak diisi/tidak relevan).
-        // Sengaja dicampur supaya widget "Barang Kedaluwarsa" di dashboard
-        // langsung kelihatan terisi begitu data demo ini di-seed.
         $dataBarang = [
             ['kode_barang' => 'SBK-001', 'nama_barang' => 'Minyak Goreng Bimoli 2L',    'kategori' => 'Sembako',     'satuan' => 'ktn',  'harga_beli' => 26000,  'harga_jual' => 28500,  'stok' => 4,  'stok_minimum' => 10, 'exp' => 3],
             ['kode_barang' => 'SBK-002', 'nama_barang' => 'Gula Pasir 1kg',             'kategori' => 'Sembako',     'satuan' => 'ktn',  'harga_beli' => 13500,  'harga_jual' => 14500,  'stok' => 8,  'stok_minimum' => 12, 'exp' => 180],
@@ -39,8 +35,6 @@ class DatabaseSeeder extends Seeder
             ['kode_barang' => 'RKK-001', 'nama_barang' => 'Gudang Garam Surya 16',      'kategori' => 'Rokok',       'satuan' => 'slop', 'harga_beli' => 220000, 'harga_jual' => 235000, 'stok' => 12, 'stok_minimum' => 3, 'exp' => null],
             ['kode_barang' => 'RKK-002', 'nama_barang' => 'Sampoerna Mild 16',          'kategori' => 'Rokok',       'satuan' => 'slop', 'harga_beli' => 235000, 'harga_jual' => 250000, 'stok' => 8,  'stok_minimum' => 3, 'exp' => null],
 
-            // Tambahan snack & minuman populer di warung Indonesia, buat
-            // memperkaya variasi data demo/seeder (bukan fitur baru).
             ['kode_barang' => 'SNK-003', 'nama_barang' => 'Taro Net Sapi Panggang 30g', 'kategori' => 'Snack',   'satuan' => 'dos', 'harga_beli' => 45000, 'harga_jual' => 50000, 'stok' => 18, 'stok_minimum' => 6, 'exp' => 45],
             ['kode_barang' => 'SNK-004', 'nama_barang' => 'Better Snack Jagung Bakar',  'kategori' => 'Snack',   'satuan' => 'dos', 'harga_beli' => 40000, 'harga_jual' => 45000, 'stok' => 5,  'stok_minimum' => 8, 'exp' => 200],
             ['kode_barang' => 'SNK-005', 'nama_barang' => 'Qtela Keripik Singkong Balado', 'kategori' => 'Snack', 'satuan' => 'dos', 'harga_beli' => 62000, 'harga_jual' => 69000, 'stok' => 15, 'stok_minimum' => 5, 'exp' => 4],
@@ -69,10 +63,6 @@ class DatabaseSeeder extends Seeder
                 array_merge($b, ['stok' => 0])
             );
 
-            // Barang baru (belum pernah di-seed sebelumnya) diberi stok awal
-            // lewat batch FIFO yang sebenarnya, bukan sekadar mengisi kolom
-            // stok, supaya data demo bisa langsung dijual lewat alur
-            // transaksi yang sekarang berbasis batch.
             if ($barang->wasRecentlyCreated && $stokAwal > 0) {
                 $inventory->terimaBarang($barang, [
                     'qty' => $stokAwal,

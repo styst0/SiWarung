@@ -14,7 +14,6 @@
             <form method="POST" action="{{ route('barang.store') }}">
                 @csrf
 
-                {{-- KODE & NAMA --}}
                 <div style="display:grid;grid-template-columns:1fr 2fr;gap:14px;margin-bottom:16px;">
                     <div>
                         <label style="display:block;font-size:12px;font-weight:500;color:var(--text-secondary);margin-bottom:5px;">Kode Barang <span style="color:var(--danger-text);">*</span></label>
@@ -36,7 +35,6 @@
                     </div>
                 </div>
 
-                {{-- KATEGORI & SATUAN --}}
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;">
                     <div>
                         <label style="display:block;font-size:12px;font-weight:500;color:var(--text-secondary);margin-bottom:5px;">Kategori</label>
@@ -70,7 +68,6 @@
                     </div>
                 </div>
 
-                {{-- HARGA --}}
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;">
                     <div>
                         <label style="display:block;font-size:12px;font-weight:500;color:var(--text-secondary);margin-bottom:5px;">Harga Beli (Rp) <span style="color:var(--danger-text);">*</span></label>
@@ -92,7 +89,6 @@
                     </div>
                 </div>
 
-                {{-- STOK --}}
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;">
                     <div>
                         <label style="display:block;font-size:12px;font-weight:500;color:var(--text-secondary);margin-bottom:5px;">Stok Awal <span style="color:var(--danger-text);">*</span></label>
@@ -118,7 +114,6 @@
                     </div>
                 </div>
 
-                {{-- KEDALUWARSA (untuk stok awal) --}}
                 <div style="margin-bottom:16px;">
                     <label style="display:block;font-size:12px;font-weight:500;color:var(--text-secondary);margin-bottom:5px;">Tanggal Kedaluwarsa Stok Awal (opsional)</label>
                     <input type="date" name="tanggal_kedaluwarsa" value="{{ old('tanggal_kedaluwarsa') }}"
@@ -128,7 +123,6 @@
                     @enderror
                 </div>
 
-                {{-- DESKRIPSI --}}
                 <div style="margin-bottom:20px;">
                     <label style="display:block;font-size:12px;font-weight:500;color:var(--text-secondary);margin-bottom:5px;">Deskripsi (opsional)</label>
                     <textarea name="deskripsi" rows="3"
@@ -136,7 +130,6 @@
                         style="width:100%;padding:8px 12px;border:var(--border);border-radius:var(--radius-md);font-size:13px;font-family:var(--font);color:var(--text-primary);outline:none;resize:vertical;">{{ old('deskripsi') }}</textarea>
                 </div>
 
-                {{-- TOMBOL --}}
                 <div style="display:flex;gap:10px;border-top:var(--border);padding-top:16px;">
                     <button type="submit" class="btn btn-primary">Simpan Barang</button>
                     <a href="{{ route('barang.index') }}" class="btn btn-outline">Batal</a>

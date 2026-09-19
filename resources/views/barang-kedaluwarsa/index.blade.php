@@ -12,7 +12,6 @@
     <a href="{{ route('laporan.penyusutan') }}" class="btn btn-outline">Laporan penyusutan<x-link-arrow /></a>
 </div>
 
-{{-- SUDAH KEDALUWARSA --}}
 <div class="card" style="margin-bottom:16px;">
     <div class="card-header">
         <span class="card-title">Sudah Kedaluwarsa</span>
@@ -41,7 +40,6 @@
     </div>
 </div>
 
-{{-- AKAN KEDALUWARSA --}}
 <div class="card">
     <div class="card-header">
         <span class="card-title">Akan Kedaluwarsa (7 Hari ke Depan)</span>

@@ -86,7 +86,7 @@ test('the dedicated expiry page lists expired and soon-to-expire batches with pa
         'tanggal_kedaluwarsa' => now()->addDays(2)->toDateString(),
         'qty_tersisa' => 3,
     ]);
-    // Batch aman (30 hari lagi) tidak boleh muncul di halaman ini.
+
     StockBatch::factory()->for($barang)->create([
         'tanggal_kedaluwarsa' => now()->addDays(30)->toDateString(),
         'qty_tersisa' => 10,
@@ -112,7 +112,7 @@ test('the dedicated expiry page paginates each category independently', function
     $response = $this->actingAs($user)->get(route('barang-kedaluwarsa.index'));
 
     $response->assertOk();
-    // 15 batch dengan 12 per halaman -> ada link ke halaman ke-2.
+
     $response->assertSee('sudah_page=2', false);
 });
 

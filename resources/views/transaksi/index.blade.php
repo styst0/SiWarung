@@ -13,7 +13,6 @@
     </a>
 </div>
 
-{{-- RINGKASAN HARI INI --}}
 <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:16px;">
     <div class="card">
         <div class="card-body">
@@ -35,7 +34,6 @@
     </div>
 </div>
 
-{{-- FILTER --}}
 <div class="card" style="margin-bottom:16px;">
     <div class="card-body" style="padding:12px 18px;">
         <form method="GET" action="{{ route('transaksi.index') }}" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
@@ -66,7 +64,6 @@
     </div>
 </div>
 
-{{-- TABEL --}}
 <div class="card">
     <div style="overflow-x:auto;">
         <table style="width:100%;border-collapse:collapse;font-size:13px;">

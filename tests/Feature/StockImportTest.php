@@ -48,8 +48,6 @@ test('import ditolak semua (all-or-nothing) kalau ada satu baris yang bermasalah
     $response->assertRedirect();
     $response->assertSessionHas('importErrors');
 
-    // Tidak ada satu pun batch yang dibuat, termasuk untuk baris yang
-    // sebenarnya valid (IMP-010) — import bersifat semua-atau-tidak.
     expect($barangA->fresh()->stok)->toBe(0);
     expect(StockBatch::count())->toBe(0);
 });

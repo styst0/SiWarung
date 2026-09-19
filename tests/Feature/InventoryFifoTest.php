@@ -92,8 +92,45 @@ test('a sale records which batches were used, for accurate FIFO costing', functi
 
     $batches = DetailTransaksiBatch::whereHas('detailTransaksi', fn ($q) => $q->where('transaksi_id', $transaksi->id))->get();
     expect($batches->sum('qty'))->toBe(7);
-    // 5 unit dari batch pertama (harga 8000) + 2 unit dari batch kedua (harga 9000)
+
     expect($batches->sum(fn ($b) => $b->qty * $b->harga_beli_satuan))->toBe(5 * 8000 + 2 * 9000);
+});
+
+test('a piutang sale does not require an amount paid and defaults it to zero', function () {
+    $user = User::factory()->create();
+    $barang = Barang::factory()->create(['stok' => 0, 'harga_jual' => 15000]);
+    app(InventoryService::class)->terimaBarang($barang, ['qty' => 5, 'harga_beli_satuan' => 8000]);
+
+    $response = $this->actingAs($user)->post(route('transaksi.store'), [
+        'status' => 'piutang',
+        'items' => [
+            ['barang_id' => $barang->id, 'qty' => 3, 'harga_satuan' => 15000, 'diskon' => 0],
+        ],
+    ]);
+
+    $response->assertRedirect(route('transaksi.index'));
+
+    $transaksi = Transaksi::first();
+    expect($transaksi)->not->toBeNull();
+    expect($transaksi->status)->toBe('piutang');
+    expect($transaksi->total_bayar)->toBe(0);
+    expect($transaksi->kembalian)->toBe(-45000);
+});
+
+test('a lunas sale still requires an amount paid', function () {
+    $user = User::factory()->create();
+    $barang = Barang::factory()->create(['stok' => 0, 'harga_jual' => 15000]);
+    app(InventoryService::class)->terimaBarang($barang, ['qty' => 5, 'harga_beli_satuan' => 8000]);
+
+    $response = $this->actingAs($user)->post(route('transaksi.store'), [
+        'status' => 'lunas',
+        'items' => [
+            ['barang_id' => $barang->id, 'qty' => 3, 'harga_satuan' => 15000, 'diskon' => 0],
+        ],
+    ]);
+
+    $response->assertSessionHasErrors('total_bayar');
+    expect(Transaksi::count())->toBe(0);
 });
 
 test('selling more than the available stock is rejected with a validation error', function () {

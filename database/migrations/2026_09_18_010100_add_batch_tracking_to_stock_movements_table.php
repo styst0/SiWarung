@@ -6,16 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * Menghubungkan setiap pergerakan stok ke batch asalnya (agar bisa
-     * ditelusuri dari mana stok itu berasal/dikonsumsi), menambah kolom
-     * `reason` untuk membedakan jenis pergerakan (pembelian, penjualan,
-     * pembatalan, penyesuaian, penyusutan), serta `harga_satuan` sebagai
-     * snapshot harga pokok saat pergerakan terjadi (dipakai untuk laporan
-     * penyusutan & HPP yang akurat).
-     */
     public function up(): void
     {
         Schema::table('stock_movements', function (Blueprint $table) {
@@ -26,9 +16,6 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::table('stock_movements', function (Blueprint $table) {

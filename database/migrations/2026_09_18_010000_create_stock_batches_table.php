@@ -6,15 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * Tabel batch penerimaan barang — dasar dari implementasi FIFO.
-     * Setiap kali barang diterima (stok masuk), satu baris batch baru
-     * dibuat dengan tanggal terima, tanggal kedaluwarsa, dan sisa qty-nya
-     * sendiri. Saat penjualan terjadi, stok dikonsumsi dari batch dengan
-     * tanggal_terima paling lama terlebih dahulu (First In First Out).
-     */
     public function up(): void
     {
         Schema::create('stock_batches', function (Blueprint $table) {
@@ -35,9 +26,6 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('stock_batches');

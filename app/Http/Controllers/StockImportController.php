@@ -10,10 +10,8 @@ use Illuminate\Support\Facades\DB;
 
 class StockImportController extends Controller
 {
-    /** @var array<int, string> Kolom wajib ada di file CSV. */
     private const KOLOM_WAJIB = ['kode_barang', 'tanggal_terima', 'qty', 'harga_beli_satuan'];
 
-    /** @var array<int, string> Kolom opsional, boleh kosong/tidak ada. */
     private const KOLOM_OPSIONAL = ['tanggal_kedaluwarsa', 'supplier', 'catatan'];
 
     public function __construct(protected InventoryService $inventory) {}
@@ -26,10 +24,6 @@ class StockImportController extends Controller
             ->with('title', 'Import Stok Masuk');
     }
 
-    /**
-     * Unduh template CSV kosong (dengan satu baris contoh) supaya format
-     * kolomnya pasti benar saat diisi ulang dari nota distributor.
-     */
     public function template()
     {
         $headers = array_merge(self::KOLOM_WAJIB, self::KOLOM_OPSIONAL);
@@ -84,12 +78,12 @@ class StockImportController extends Controller
         }
 
         $baris = [];
-        $nomorBaris = 1; // baris 1 = header
+        $nomorBaris = 1;
         while (($raw = fgetcsv($handle)) !== false) {
             $nomorBaris++;
 
             if (count(array_filter($raw, fn ($v) => trim((string) $v) !== '')) === 0) {
-                continue; // lewati baris kosong
+                continue;
             }
 
             $data = array_combine($headers, array_pad($raw, count($headers), null));
@@ -103,9 +97,6 @@ class StockImportController extends Controller
 
         [$errors, $validRows] = $this->validasiSemuaBaris($baris);
 
-        // Import bersifat semua-atau-tidak-sama-sekali: kalau ada satu saja
-        // baris yang bermasalah, tidak ada satu pun batch yang dibuat,
-        // supaya jejak FIFO tidak berisi hasil import yang setengah jalan.
         if ($errors !== []) {
             return back()->with('importErrors', $errors)->with('error',
                 count($errors).' dari '.count($baris).' baris bermasalah. Tidak ada yang diimport — perbaiki file lalu upload ulang.'
@@ -129,10 +120,6 @@ class StockImportController extends Controller
             ->with('success', count($validRows).' batch stok masuk berhasil diimport.');
     }
 
-    /**
-     * @param  array<int, array{baris:int, data:array<string, mixed>}>  $baris
-     * @return array{0: array<int, array{baris:int, kode_barang:string, pesan: array<int,string>}>, 1: array<int, array<string, mixed>>}
-     */
     private function validasiSemuaBaris(array $baris): array
     {
         $errors = [];
@@ -208,11 +195,6 @@ class StockImportController extends Controller
         return [$errors, $validRows];
     }
 
-    /**
-     * Parsing tanggal yang toleran terhadap beberapa format umum, karena
-     * Excel sering mengubah format tanggal otomatis saat disimpan ke CSV
-     * tergantung region pengguna.
-     */
     private function parseTanggal(?string $value): ?Carbon
     {
         $value = trim((string) $value);

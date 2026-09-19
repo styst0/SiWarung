@@ -11,21 +11,18 @@ use Illuminate\Support\Facades\DB;
 
 class LaporanController extends Controller
 {
-    // ── LAPORAN PENJUALAN ─────────────────────────────────────────────────
     public function penjualan(Request $request)
     {
         $periode = $request->get('periode', 'harian');
         $dari = $request->get('dari', Carbon::today()->format('Y-m-d'));
         $sampai = $request->get('sampai', Carbon::today()->format('Y-m-d'));
 
-        // Jika periode bulanan, set range ke 1 bulan penuh
         if ($periode === 'bulanan') {
             $bulan = $request->get('bulan', Carbon::now()->format('Y-m'));
             $dari = Carbon::parse($bulan)->startOfMonth()->format('Y-m-d');
             $sampai = Carbon::parse($bulan)->endOfMonth()->format('Y-m-d');
         }
 
-        // ── RINGKASAN ──
         $ringkasan = Transaksi::whereBetween(DB::raw('DATE(created_at)'), [$dari, $sampai])
             ->selectRaw('
                 COUNT(*) as total_transaksi,
@@ -35,7 +32,6 @@ class LaporanController extends Controller
             ')
             ->first();
 
-        // ── GRAFIK HARIAN (dalam range yang dipilih) ──
         $grafikHarian = Transaksi::whereBetween(DB::raw('DATE(created_at)'), [$dari, $sampai])
             ->where('status', 'lunas')
             ->selectRaw('DATE(created_at) as tanggal, SUM(total_harga) as total, COUNT(*) as jumlah')
@@ -43,7 +39,6 @@ class LaporanController extends Controller
             ->orderBy('tanggal')
             ->get();
 
-        // ── BARANG TERLARIS ──
         $barangTerlaris = DB::table('detail_transaksis')
             ->join('transaksis', 'detail_transaksis.transaksi_id', '=', 'transaksis.id')
             ->join('barangs', 'detail_transaksis.barang_id', '=', 'barangs.id')
@@ -60,7 +55,6 @@ class LaporanController extends Controller
             ->limit(10)
             ->get();
 
-        // ── PENJUALAN PER KATEGORI ──
         $perKategori = DB::table('detail_transaksis')
             ->join('transaksis', 'detail_transaksis.transaksi_id', '=', 'transaksis.id')
             ->join('barangs', 'detail_transaksis.barang_id', '=', 'barangs.id')
@@ -71,7 +65,6 @@ class LaporanController extends Controller
             ->orderByDesc('total')
             ->get();
 
-        // ── DAFTAR TRANSAKSI ──
         $transaksi = Transaksi::whereBetween(DB::raw('DATE(created_at)'), [$dari, $sampai])
             ->orderByDesc('created_at')
             ->paginate(15)
@@ -87,22 +80,16 @@ class LaporanController extends Controller
         ))->with('title', 'Laporan Penjualan');
     }
 
-    // ── LAPORAN LABA RUGI ─────────────────────────────────────────────────
     public function labaRugi(Request $request)
     {
         $bulan = $request->get('bulan', Carbon::now()->format('Y-m'));
         $dari = Carbon::parse($bulan)->startOfMonth()->format('Y-m-d');
         $sampai = Carbon::parse($bulan)->endOfMonth()->format('Y-m-d');
 
-        // ── PENDAPATAN (dari transaksi lunas) ──
         $pendapatan = Transaksi::whereBetween(DB::raw('DATE(created_at)'), [$dari, $sampai])
             ->where('status', 'lunas')
             ->sum('total_harga');
 
-        // ── HPP: Harga Pokok Penjualan, dihitung dari harga beli batch FIFO
-        //    yang benar-benar dikonsumsi (detail_transaksi_batches). Untuk
-        //    transaksi lama sebelum fitur batch ada, jatuh kembali ke
-        //    qty × harga_beli barang saat ini (perilaku lama). ──
         $hpp = DB::table('detail_transaksis')
             ->join('transaksis', 'detail_transaksis.transaksi_id', '=', 'transaksis.id')
             ->join('barangs', 'detail_transaksis.barang_id', '=', 'barangs.id')
@@ -114,7 +101,6 @@ class LaporanController extends Controller
         $labaKotor = $pendapatan - $hpp;
         $marginPersen = $pendapatan > 0 ? round(($labaKotor / $pendapatan) * 100, 1) : 0;
 
-        // ── LABA KOTOR PER KATEGORI ──
         $labaPerKategori = DB::table('detail_transaksis')
             ->join('transaksis', 'detail_transaksis.transaksi_id', '=', 'transaksis.id')
             ->join('barangs', 'detail_transaksis.barang_id', '=', 'barangs.id')
@@ -130,7 +116,6 @@ class LaporanController extends Controller
             ->orderByDesc('laba')
             ->get();
 
-        // ── LABA PER BARANG (top 10) ──
         $labaPerBarang = DB::table('detail_transaksis')
             ->join('transaksis', 'detail_transaksis.transaksi_id', '=', 'transaksis.id')
             ->join('barangs', 'detail_transaksis.barang_id', '=', 'barangs.id')
@@ -149,7 +134,6 @@ class LaporanController extends Controller
             ->limit(10)
             ->get();
 
-        // ── TREND LABA HARIAN ──
         $trendHarian = DB::table('detail_transaksis')
             ->join('transaksis', 'detail_transaksis.transaksi_id', '=', 'transaksis.id')
             ->join('barangs', 'detail_transaksis.barang_id', '=', 'barangs.id')
@@ -165,7 +149,6 @@ class LaporanController extends Controller
             ->orderBy('tanggal')
             ->get();
 
-        // Bulan sebelumnya untuk perbandingan
         $bulanLaluDari = Carbon::parse($bulan)->subMonth()->startOfMonth()->format('Y-m-d');
         $bulanLaluSampai = Carbon::parse($bulan)->subMonth()->endOfMonth()->format('Y-m-d');
 
@@ -196,14 +179,6 @@ class LaporanController extends Controller
         ))->with('title', 'Laporan Laba Rugi');
     }
 
-    /**
-     * Ekspresi SQL (scalar subquery) untuk menghitung HPP satu baris
-     * detail_transaksis dari harga beli batch FIFO yang benar-benar
-     * dipakai. Ditulis sebagai subquery per-baris (bukan JOIN) supaya
-     * tidak menggandakan baris `detail_transaksis` ketika satu baris
-     * terpenuhi dari lebih dari satu batch (fan-out), yang akan membuat
-     * SUM(subtotal) ikut tergandakan.
-     */
     protected function hppFifoExpr(): string
     {
         return '
@@ -216,7 +191,6 @@ class LaporanController extends Controller
         ';
     }
 
-    // ── LAPORAN PENYUSUTAN ────────────────────────────────────────────────
     public function penyusutan(Request $request)
     {
         $bulan = $request->get('bulan', Carbon::now()->format('Y-m'));

@@ -67,19 +67,11 @@ class StockBatch extends Model
         return $this->hasMany(DetailTransaksiBatch::class);
     }
 
-    /**
-     * Batch yang masih memiliki sisa stok (kandidat konsumsi FIFO).
-     */
     public function scopeAktif(Builder $query): Builder
     {
         return $query->where('qty_tersisa', '>', 0);
     }
 
-    /**
-     * Urutan konsumsi FIFO murni: batch yang diterima paling awal
-     * dipakai lebih dulu (First In First Out), berdasarkan tanggal
-     * penerimaan barang, bukan tanggal kedaluwarsa.
-     */
     public function scopeUrutanFifo(Builder $query): Builder
     {
         return $query->orderBy('tanggal_terima')->orderBy('id');

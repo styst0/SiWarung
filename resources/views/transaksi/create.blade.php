@@ -13,9 +13,7 @@
 
 <div style="display:grid;grid-template-columns:1fr 340px;gap:16px;align-items:start;">
 
-    {{-- KIRI: BARANG --}}
     <div>
-        {{-- CARI BARANG --}}
         <div class="card" style="margin-bottom:14px;">
             <div class="card-header"><span class="card-title">Tambah Barang</span></div>
             <div class="card-body">
@@ -28,7 +26,6 @@
             </div>
         </div>
 
-        {{-- TABEL ITEM --}}
         <div class="card">
             <div class="card-header"><span class="card-title">Item Transaksi</span></div>
             <div style="overflow-x:auto;">
@@ -58,7 +55,6 @@
         </div>
     </div>
 
-    {{-- KANAN: INFO TRANSAKSI --}}
     <div class="card" style="position:sticky;top:70px;">
         <div class="card-header"><span class="card-title">Detail Transaksi</span></div>
         <div class="card-body">
@@ -71,7 +67,7 @@
 
             <div style="margin-bottom:14px;">
                 <label style="display:block;font-size:12px;font-weight:500;color:var(--text-secondary);margin-bottom:5px;">Status Pembayaran</label>
-                <select name="status"
+                <select name="status" id="input-status" onchange="toggleStatusBayar(this.value)"
                     style="width:100%;padding:8px 12px;border:var(--border);border-radius:var(--radius-md);font-size:13px;font-family:var(--font);color:var(--text-primary);background:var(--bg-white);outline:none;">
                     <option value="lunas">Lunas</option>
                     <option value="piutang">Piutang (belum bayar)</option>
@@ -83,16 +79,22 @@
                 <div id="display-total" style="padding:8px 12px;background:var(--bg-page);border-radius:var(--radius-md);font-size:16px;font-weight:600;color:var(--brand);">Rp 0</div>
             </div>
 
-            <div style="margin-bottom:14px;">
-                <label style="display:block;font-size:12px;font-weight:500;color:var(--text-secondary);margin-bottom:5px;">Uang Bayar (Rp)</label>
-                <input type="number" name="total_bayar" id="input-bayar" placeholder="0" min="0"
-                    oninput="hitungKembalian()"
-                    style="width:100%;padding:8px 12px;border:var(--border);border-radius:var(--radius-md);font-size:13px;font-family:var(--font);color:var(--text-primary);outline:none;">
+            <div id="bayar-section">
+                <div style="margin-bottom:14px;">
+                    <label style="display:block;font-size:12px;font-weight:500;color:var(--text-secondary);margin-bottom:5px;">Uang Bayar (Rp)</label>
+                    <input type="number" name="total_bayar" id="input-bayar" placeholder="0" min="0"
+                        oninput="hitungKembalian()"
+                        style="width:100%;padding:8px 12px;border:var(--border);border-radius:var(--radius-md);font-size:13px;font-family:var(--font);color:var(--text-primary);outline:none;">
+                </div>
+
+                <div style="margin-bottom:16px;padding:10px 12px;background:var(--success-bg);border-radius:var(--radius-md);">
+                    <div style="font-size:11px;color:var(--success-text);margin-bottom:2px;">Kembalian</div>
+                    <div id="display-kembalian" style="font-size:16px;font-weight:600;color:var(--success-text);">Rp 0</div>
+                </div>
             </div>
 
-            <div style="margin-bottom:16px;padding:10px 12px;background:var(--success-bg);border-radius:var(--radius-md);">
-                <div style="font-size:11px;color:var(--success-text);margin-bottom:2px;">Kembalian</div>
-                <div id="display-kembalian" style="font-size:16px;font-weight:600;color:var(--success-text);">Rp 0</div>
+            <div id="piutang-note" style="display:none;margin-bottom:16px;padding:10px 12px;background:var(--warning-bg);border-radius:var(--radius-md);">
+                <div style="font-size:12px;color:var(--warning-text);">Piutang: belum ada pembayaran, seluruh total akan tercatat sebagai utang pelanggan.</div>
             </div>
 
             <div style="margin-bottom:16px;">
@@ -131,7 +133,6 @@
 let items = [];
 let grandTotal = 0;
 
-// ── CARI BARANG ──────────────────────────────────────────────────────────
 const inputSearch = document.getElementById('search-barang');
 const hasilCari   = document.getElementById('hasil-cari');
 
@@ -165,7 +166,6 @@ document.addEventListener('click', e => {
     }
 });
 
-// ── TAMBAH ITEM ──────────────────────────────────────────────────────────
 function tambahItem(id, nama, harga, stok, satuan) {
     hasilCari.style.display = 'none';
     inputSearch.value = '';
@@ -268,6 +268,24 @@ function hitungKembalian() {
     const el        = document.getElementById('display-kembalian');
     el.textContent  = 'Rp ' + formatRp(Math.max(0, kembalian));
     el.style.color  = kembalian < 0 ? 'var(--danger-text)' : 'var(--success-text)';
+}
+
+function toggleStatusBayar(status) {
+    const inputBayar    = document.getElementById('input-bayar');
+    const bayarSection  = document.getElementById('bayar-section');
+    const piutangNote   = document.getElementById('piutang-note');
+
+    if (status === 'piutang') {
+        bayarSection.style.display = 'none';
+        piutangNote.style.display  = 'block';
+        inputBayar.value    = '';
+        inputBayar.disabled = true;
+    } else {
+        bayarSection.style.display = 'block';
+        piutangNote.style.display  = 'none';
+        inputBayar.disabled = false;
+        hitungKembalian();
+    }
 }
 
 function formatRp(n) {

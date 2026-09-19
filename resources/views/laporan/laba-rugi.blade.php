@@ -2,7 +2,6 @@
 
 @section('content')
 
-{{-- HEADER --}}
 <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
     <div>
         <h1 style="font-size:18px;font-weight:600;color:var(--text-primary);">Laporan Laba Rugi</h1>
@@ -16,7 +15,6 @@
     </button>
 </div>
 
-{{-- FILTER --}}
 <div class="card" style="margin-bottom:16px;">
     <div class="card-body" style="padding:12px 18px;">
         <form method="GET" action="{{ route('laporan.laba-rugi') }}" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
@@ -28,7 +26,6 @@
     </div>
 </div>
 
-{{-- RINGKASAN LABA RUGI --}}
 <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px;">
     <div class="card">
         <div class="card-body">
@@ -66,7 +63,6 @@
     </div>
 </div>
 
-{{-- BAGAN LABA RUGI RINGKAS --}}
 <div class="card" style="margin-bottom:16px;">
     <div class="card-header"><span class="card-title">Ringkasan Laba Rugi</span></div>
     <div class="card-body">
@@ -108,10 +104,8 @@
     </div>
 </div>
 
-{{-- TREND HARIAN + LABA PER KATEGORI --}}
 <div style="display:grid;grid-template-columns:1.4fr 0.6fr;gap:12px;margin-bottom:12px;">
 
-    {{-- TREND LABA HARIAN --}}
     <div class="card">
         <div class="card-header">
             <span class="card-title">Trend Laba Harian</span>
@@ -151,7 +145,6 @@
         </div>
     </div>
 
-    {{-- LABA PER KATEGORI --}}
     <div class="card">
         <div class="card-header"><span class="card-title">Laba per Kategori</span></div>
         <div class="card-body">
@@ -179,7 +172,6 @@
 
 </div>
 
-{{-- LABA PER BARANG --}}
 <div class="card">
     <div class="card-header">
         <span class="card-title">Laba per Barang</span>

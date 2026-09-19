@@ -18,7 +18,6 @@
 
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:800px;">
 
-    {{-- INFO UTAMA --}}
     <div class="card">
         <div class="card-header"><span class="card-title">Informasi Barang</span></div>
         <div class="card-body">
@@ -47,7 +46,6 @@
         </div>
     </div>
 
-    {{-- HARGA & STOK --}}
     <div style="display:flex;flex-direction:column;gap:14px;">
         <div class="card">
             <div class="card-header"><span class="card-title">Harga</span></div>
@@ -96,7 +94,6 @@
 
 </div>
 
-{{-- BATCH PENERIMAAN (FIFO) & KEDALUWARSA --}}
 <div class="card" style="max-width:800px;margin-top:14px;">
     <div class="card-header">
         <span class="card-title">Batch Penerimaan Barang (FIFO)</span>

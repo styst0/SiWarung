@@ -63,6 +63,6 @@ test('shrinkage appears in the penyusutan report with its rupiah value', functio
 
     $response->assertOk();
     $response->assertSee('Yogurt Cup');
-    // 6 unit x Rp 3.000 = Rp 18.000
+
     $response->assertSee('18.000', escape: false);
 });

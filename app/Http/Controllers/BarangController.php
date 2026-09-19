@@ -60,8 +60,6 @@ class BarangController extends Controller
             'tanggal_kedaluwarsa' => 'nullable|date',
         ]);
 
-        // Stok awal dibentuk sebagai batch pertama (bukan langsung mengisi
-        // kolom stok) supaya sejak awal tercatat & bisa dikonsumsi FIFO.
         $stokAwal = $validated['stok'];
         $tanggalKedaluwarsa = $validated['tanggal_kedaluwarsa'] ?? null;
         unset($validated['stok'], $validated['tanggal_kedaluwarsa']);
@@ -148,9 +146,6 @@ class BarangController extends Controller
             'deskripsi' => 'nullable|string',
         ]);
 
-        // `stok` sengaja tidak diterima dari form edit — jumlah stok kini
-        // selalu berasal dari batch (Tambah Stok / penjualan / penyusutan)
-        // supaya tidak pernah menyimpang dari catatan batch penerimaan.
         $barang->update($validated);
 
         return redirect()->route('barang.index')

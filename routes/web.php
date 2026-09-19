@@ -16,42 +16,34 @@ require __DIR__.'/auth.php';
 
 Route::middleware(['auth', 'verified'])->group(function () {
 
-    // Dashboard
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
-    // Barang
     Route::resource('barang', BarangController::class);
     Route::get('barang/{barang}/stok-masuk', [BarangController::class, 'stockIn'])->name('barang.stok-masuk');
     Route::post('barang/{barang}/stok-masuk', [BarangController::class, 'storeStockIn'])->name('barang.stok-masuk.store');
     Route::post('barang/{barang}/batch/{batch}/penyusutan', [StockBatchController::class, 'penyusutan'])->name('barang.batch.penyusutan');
     Route::get('barang-kedaluwarsa', [StockBatchController::class, 'kedaluwarsa'])->name('barang-kedaluwarsa.index');
 
-    // Stock movements
     Route::get('stock-movements', [StockMovementController::class, 'index'])->name('stock-movements.index');
     Route::get('stock-movements/create', [StockMovementController::class, 'create'])->name('stock-movements.create');
     Route::post('stock-movements', [StockMovementController::class, 'store'])->name('stock-movements.store');
 
-    // Import massal stok masuk (dari nota distributor, via CSV)
     Route::get('stok-import', [StockImportController::class, 'create'])->name('stok-import.create');
     Route::get('stok-import/template', [StockImportController::class, 'template'])->name('stok-import.template');
     Route::post('stok-import', [StockImportController::class, 'store'])->name('stok-import.store');
 
-    // Transaksi
     Route::resource('transaksi', TransaksiController::class);
     Route::get('transaksi/{transaksi}/nota', [TransaksiController::class, 'nota'])->name('transaksi.nota');
     Route::patch('transaksi/{transaksi}/status', [TransaksiController::class, 'updateStatus'])->name('transaksi.status');
 
-    // Laporan
     Route::get('laporan/penjualan', [LaporanController::class, 'penjualan'])->name('laporan.penjualan');
     Route::get('laporan/laba-rugi', [LaporanController::class, 'labaRugi'])->name('laporan.laba-rugi');
     Route::get('laporan/penyusutan', [LaporanController::class, 'penyusutan'])->name('laporan.penyusutan');
 
-    // Profil
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // API: cari barang (autocomplete form transaksi)
     Route::get('/api/barang/search', function (Request $request) {
         $q = $request->get('q', '');
         $results = Barang::where('nama_barang', 'like', "%{$q}%")

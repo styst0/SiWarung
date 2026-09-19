@@ -2,7 +2,6 @@
 
 @section('content')
 
-{{-- HEADER --}}
 <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
     <div>
         <h1 style="font-size:18px;font-weight:600;color:var(--text-primary);">Laporan Penjualan</h1>
@@ -18,7 +17,6 @@
     </a>
 </div>
 
-{{-- FILTER --}}
 <div class="card" style="margin-bottom:16px;">
     <div class="card-body" style="padding:12px 18px;">
         <form method="GET" action="{{ route('laporan.penjualan') }}" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
@@ -28,7 +26,6 @@
                 <option value="bulanan" {{ $periode === 'bulanan' ? 'selected' : '' }}>Bulanan</option>
             </select>
 
-            {{-- Harian: pilih rentang tanggal --}}
             <div id="filter-harian" style="display:{{ $periode === 'harian' ? 'flex' : 'none' }};gap:8px;align-items:center;flex-wrap:wrap;">
                 <span style="display:inline-flex;align-items:center;gap:6px;">
                     <span style="font-size:12px;color:var(--text-muted);white-space:nowrap;">Dari:</span>
@@ -42,7 +39,6 @@
                 </span>
             </div>
 
-            {{-- Bulanan: pilih bulan --}}
             <div id="filter-bulanan" style="display:{{ $periode === 'bulanan' ? 'flex' : 'none' }};gap:8px;align-items:center;">
                 <span style="font-size:12px;color:var(--text-muted);white-space:nowrap;">Bulan:</span>
                 <input type="month" name="bulan" value="{{ request('bulan', \Carbon\Carbon::now()->format('Y-m')) }}"
@@ -54,7 +50,6 @@
     </div>
 </div>
 
-{{-- RINGKASAN --}}
 <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px;">
     <div class="card">
         <div class="card-body">
@@ -88,10 +83,8 @@
     </div>
 </div>
 
-{{-- GRAFIK + KATEGORI --}}
 <div style="display:grid;grid-template-columns:1.4fr 0.6fr;gap:12px;margin-bottom:12px;">
 
-    {{-- GRAFIK HARIAN --}}
     <div class="card">
         <div class="card-header">
             <span class="card-title">Grafik Penjualan Harian</span>
@@ -126,7 +119,6 @@
         </div>
     </div>
 
-    {{-- PER KATEGORI --}}
     <div class="card">
         <div class="card-header">
             <span class="card-title">Per Kategori</span>
@@ -152,10 +144,8 @@
 
 </div>
 
-{{-- BARANG TERLARIS + TRANSAKSI --}}
 <div style="display:grid;grid-template-columns:0.6fr 1.4fr;gap:12px;margin-bottom:12px;">
 
-    {{-- BARANG TERLARIS --}}
     <div class="card">
         <div class="card-header">
             <span class="card-title">Barang Terlaris</span>
@@ -179,7 +169,6 @@
         </div>
     </div>
 
-    {{-- DAFTAR TRANSAKSI --}}
     <div class="card">
         <div class="card-header">
             <span class="card-title">Daftar Transaksi</span>

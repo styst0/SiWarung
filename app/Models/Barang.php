@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Barang extends Model
 {
-    //
     use HasFactory, SoftDeletes;
 
     protected $table = 'barangs';
@@ -62,10 +61,6 @@ class Barang extends Model
         return 'aman';
     }
 
-    /**
-     * Jumlah stok riil dihitung ulang dari sisa batch (sumber kebenaran).
-     * Dipakai untuk verifikasi/test bahwa kolom `stok` (cache) tetap sinkron.
-     */
     public function hitungStokDariBatch(): int
     {
         return (int) $this->stockBatches()->sum('qty_tersisa');

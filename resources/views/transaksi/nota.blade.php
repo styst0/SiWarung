@@ -77,9 +77,5 @@
     </button>
 </div>
 
-<script>
-    // Auto print saat halaman dibuka
-    // window.onload = () => window.print();
-</script>
 </body>
 </html>
