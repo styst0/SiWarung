@@ -90,7 +90,7 @@
                 </div>
             </div>
             <div style="flex:1;padding:16px 20px;background:{{ $labaKotor >= 0 ? 'var(--success-bg)' : 'var(--danger-bg)' }};">
-                <div style="font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:12px;">Laba Bersih</div>
+                <div style="font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:12px;">Laba Kotor</div>
                 <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid {{ $labaKotor >= 0 ? '#C0DD97' : '#F7C1C1' }};font-size:13px;">
                     <span style="color:var(--text-secondary);">Pendapatan − HPP</span>
                     <span style="font-weight:500;">Rp {{ number_format($labaKotor, 0, ',', '.') }}</span>

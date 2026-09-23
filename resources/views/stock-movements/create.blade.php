@@ -4,7 +4,7 @@
 
 <div style="margin-bottom:20px;">
     <a href="{{ route('stock-movements.index') }}" style="font-size:12px;color:var(--text-muted);text-decoration:none;margin-bottom:10px;display:inline-block;"><x-link-arrow direction="left" />Kembali ke Manajemen Stok</a>
-    <div style="display:flex;align-items:center;justify-content:space-between;">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
         <div>
             <h1 style="font-size:18px;font-weight:600;color:var(--text-primary);">Tambah Penyesuaian Stok</h1>
             <p style="font-size:13px;color:var(--text-secondary);margin-top:3px;">Catat stok masuk atau keluar sebagai transaksi inventaris.</p>

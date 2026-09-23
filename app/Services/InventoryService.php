@@ -102,6 +102,27 @@ class InventoryService
         });
     }
 
+    public function konsumsiKembaliDetailTransaksi(DetailTransaksi $detail, string $reason = 'aktivasi_ulang'): void
+    {
+        DB::transaction(function () use ($detail, $reason) {
+            $detail->loadMissing(['batches.stockBatch', 'barang']);
+            $barang = $detail->barang;
+
+            foreach ($detail->batches as $penggunaan) {
+                $batch = $penggunaan->stockBatch()->lockForUpdate()->first();
+
+                if ($batch->qty_tersisa < $penggunaan->qty) {
+                    throw InsufficientStockException::forBarang($barang->nama_barang, $penggunaan->qty, $batch->qty_tersisa);
+                }
+
+                $batch->decrement('qty_tersisa', $penggunaan->qty);
+                $barang->decrement('stok', $penggunaan->qty);
+
+                $this->catatPergerakan($barang, $batch, 'out', $reason, $penggunaan->qty, $penggunaan->harga_beli_satuan, $detail->transaksi, 'Transaksi diaktifkan kembali');
+            }
+        });
+    }
+
     public function catatPenyusutan(StockBatch $batch, int $qty, string $alasan, ?string $catatan = null): StockMovement
     {
         return DB::transaction(function () use ($batch, $qty, $alasan, $catatan) {

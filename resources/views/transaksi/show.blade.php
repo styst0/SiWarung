@@ -4,7 +4,7 @@
 
 <div style="margin-bottom:20px;">
     <a href="{{ route('transaksi.index') }}" style="font-size:12px;color:var(--text-muted);text-decoration:none;display:inline-block;margin-bottom:10px;"><x-link-arrow direction="left" />Kembali ke Daftar Transaksi</a>
-    <div style="display:flex;align-items:center;justify-content:space-between;">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
         <div>
             <h1 style="font-size:18px;font-weight:600;color:var(--text-primary);">{{ $transaksi->kode_transaksi }}</h1>
             <p style="font-size:13px;color:var(--text-secondary);margin-top:3px;">{{ $transaksi->created_at->format('d M Y, H:i') }} · Kasir: {{ $transaksi->user->name ?? '—' }}</p>

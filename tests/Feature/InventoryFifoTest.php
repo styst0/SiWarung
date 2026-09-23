@@ -175,3 +175,57 @@ test('cancelling a transaction restores stock to the original batches', function
     expect($batch->fresh()->qty_tersisa)->toBe(10);
     expect(StockMovement::where('reason', 'pembatalan')->exists())->toBeTrue();
 });
+
+test('reactivating a cancelled transaction consumes stock again from the same batches', function () {
+    $user = User::factory()->create();
+    $barang = Barang::factory()->create(['stok' => 0]);
+    $inventory = app(InventoryService::class);
+    $batch = $inventory->terimaBarang($barang, ['qty' => 10, 'harga_beli_satuan' => 4000]);
+
+    $this->actingAs($user)->post(route('transaksi.store'), [
+        'status' => 'lunas',
+        'total_bayar' => 60000,
+        'items' => [
+            ['barang_id' => $barang->id, 'qty' => 6, 'harga_satuan' => 10000, 'diskon' => 0],
+        ],
+    ]);
+    $transaksi = Transaksi::first();
+
+    $this->actingAs($user)->patch(route('transaksi.status', $transaksi), ['status' => 'batal']);
+    expect($barang->fresh()->stok)->toBe(10);
+    expect($batch->fresh()->qty_tersisa)->toBe(10);
+
+    $this->actingAs($user)->patch(route('transaksi.status', $transaksi), ['status' => 'lunas']);
+
+    expect($transaksi->fresh()->status)->toBe('lunas');
+    expect($barang->fresh()->stok)->toBe(4);
+    expect($batch->fresh()->qty_tersisa)->toBe(4);
+    expect(StockMovement::where('reason', 'aktivasi_ulang')->where('direction', 'out')->where('qty', 6)->exists())->toBeTrue();
+});
+
+test('reactivating a cancelled transaction is blocked when the original batch no longer has enough stock', function () {
+    $user = User::factory()->create();
+    $barang = Barang::factory()->create(['stok' => 0]);
+    $inventory = app(InventoryService::class);
+    $batch = $inventory->terimaBarang($barang, ['qty' => 10, 'harga_beli_satuan' => 4000]);
+
+    $this->actingAs($user)->post(route('transaksi.store'), [
+        'status' => 'lunas',
+        'total_bayar' => 60000,
+        'items' => [
+            ['barang_id' => $barang->id, 'qty' => 6, 'harga_satuan' => 10000, 'diskon' => 0],
+        ],
+    ]);
+    $transaksi = Transaksi::first();
+
+    $this->actingAs($user)->patch(route('transaksi.status', $transaksi), ['status' => 'batal']);
+
+    $inventory->catatPenyusutan($batch->fresh(), 7, 'rusak');
+    expect($batch->fresh()->qty_tersisa)->toBe(3);
+
+    $this->actingAs($user)->patch(route('transaksi.status', $transaksi), ['status' => 'lunas']);
+
+    expect($transaksi->fresh()->status)->toBe('batal');
+    expect($barang->fresh()->stok)->toBe(3);
+    expect($batch->fresh()->qty_tersisa)->toBe(3);
+});

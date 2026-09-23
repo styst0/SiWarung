@@ -161,10 +161,26 @@ class TransaksiController extends Controller
     {
         $request->validate(['status' => 'required|in:lunas,piutang,batal']);
         $oldStatus = $transaksi->status;
-        $transaksi->update(['status' => $request->status]);
+        $newStatus = $request->status;
 
-        if ($request->status === 'batal' && $oldStatus !== 'batal') {
+        if ($oldStatus === 'batal' && $newStatus !== 'batal') {
+            try {
+                DB::transaction(function () use ($transaksi, $newStatus) {
+                    foreach ($transaksi->detailTransaksi as $detail) {
+                        $this->inventory->konsumsiKembaliDetailTransaksi($detail);
+                    }
+                    $transaksi->update(['status' => $newStatus]);
+                });
+            } catch (InsufficientStockException $e) {
+                return back()->with('error', $e->getMessage());
+            }
 
+            return back()->with('success', 'Status transaksi berhasil diperbarui.');
+        }
+
+        $transaksi->update(['status' => $newStatus]);
+
+        if ($newStatus === 'batal' && $oldStatus !== 'batal') {
             foreach ($transaksi->detailTransaksi as $detail) {
                 $this->inventory->pulihkanStokDetailTransaksi($detail, 'pembatalan');
             }

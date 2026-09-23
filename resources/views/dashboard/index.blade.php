@@ -2,7 +2,7 @@
 
 @section('content')
 
-<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;">
+<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
     <div>
         <h1 style="font-size:18px;font-weight:600;color:var(--text-primary);">Selamat datang, {{ Auth::user()->name ?? 'Ratih' }}</h1>
         <p style="font-size:13px;color:var(--text-secondary);margin-top:3px;">Ringkasan aktivitas toko grosiran hari ini</p>
