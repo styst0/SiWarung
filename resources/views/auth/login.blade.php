@@ -71,9 +71,7 @@
             font-weight: 500;
             font-family: inherit;
             cursor: pointer;
-            transition: opacity .12s;
         }
-        .btn-login:hover { opacity: .88; }
         .footer-link { text-align: center; margin-top: 18px; font-size: 12px; color: #9B9B96; }
         .footer-link a { color: #185FA5; text-decoration: none; }
     </style>
@@ -107,7 +105,7 @@
         <div class="field">
             <label>Email</label>
             <input type="email" name="email" value="{{ old('email') }}" required autofocus
-                placeholder="ratih@toko.com"
+                placeholder="nama@gmail.com"
                 style="{{ $errors->has('email') ? 'border-color:#A32D2D;' : '' }}">
             @error('email') <div class="error">{{ $message }}</div> @enderror
         </div>

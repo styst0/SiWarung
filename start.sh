@@ -319,8 +319,8 @@ tampilkan_info() {
     fi
 
     if [ "$SEED_DIJALANKAN" = 1 ]; then
-        printf '  Login           : ratih@toko.com\n'
-        printf '  Password        : password\n'
+        printf '  Login           : tokoratih@gmail.com\n'
+        printf '  Password        : QkePGN5w6P#W8\n'
     fi
 
     printf '\n  Tekan Ctrl+C untuk menghentikan server.\n\n'

@@ -13,8 +13,8 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         User::firstOrCreate(
-            ['email' => 'ratih@toko.com'],
-            ['name' => 'Ratih', 'password' => Hash::make('password')]
+            ['email' => 'tokoratih@gmail.com'],
+            ['name' => 'Ratih', 'password' => Hash::make('QkePGN5w6P#W8')]
         );
 
         $dataBarang = [
