@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Barang;
+use App\Services\HargaJualService;
 use App\Services\InventoryService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -14,7 +15,9 @@ class StockImportController extends Controller
 
     private const KOLOM_OPSIONAL = ['tanggal_kedaluwarsa', 'supplier', 'catatan'];
 
-    public function __construct(protected InventoryService $inventory) {}
+    private const KOLOM_BARANG_BARU = ['nama_barang', 'kategori', 'satuan', 'harga_jual', 'stok_minimum'];
+
+    public function __construct(protected InventoryService $inventory, protected HargaJualService $hargaJual) {}
 
     public function create()
     {
@@ -26,21 +29,40 @@ class StockImportController extends Controller
 
     public function template()
     {
-        $headers = array_merge(self::KOLOM_WAJIB, self::KOLOM_OPSIONAL);
-        $contoh = [
+        $headers = array_merge(self::KOLOM_WAJIB, self::KOLOM_OPSIONAL, self::KOLOM_BARANG_BARU);
+
+        $contohLama = [
             'SBK-001',
             now()->toDateString(),
             '24',
             '26000',
             now()->addMonths(6)->toDateString(),
             'Distributor Sembako Jaya',
-            'Contoh baris - hapus/ganti dengan data dari nota',
+            'Contoh baris untuk barang yang SUDAH ada di sistem - hapus/ganti',
+            '', '', '', '', '',
         ];
 
-        $csv = implode(',', $headers)."\n".implode(',', array_map(
+        $contohBaru = [
+            'SBK-999',
+            now()->toDateString(),
+            '12',
+            '15000',
+            now()->addMonths(6)->toDateString(),
+            'Distributor Sembako Jaya',
+            'Contoh baris untuk barang BARU (belum terdaftar) - hapus/ganti',
+            'Nama Barang Baru',
+            'Sembako',
+            'pcs',
+            '18000',
+            '10',
+        ];
+
+        $tulisBaris = fn (array $baris) => implode(',', array_map(
             fn (string $value) => str_contains($value, ',') ? '"'.$value.'"' : $value,
-            $contoh
-        ))."\n";
+            $baris
+        ));
+
+        $csv = implode(',', $headers)."\n".$tulisBaris($contohLama)."\n".$tulisBaris($contohBaru)."\n";
 
         return response($csv, 200, [
             'Content-Type' => 'text/csv; charset=UTF-8',
@@ -103,9 +125,36 @@ class StockImportController extends Controller
             );
         }
 
-        DB::transaction(function () use ($validRows) {
+        $barangBaruDibuat = [];
+
+        DB::transaction(function () use ($validRows, &$barangBaruDibuat) {
             foreach ($validRows as $row) {
-                $this->inventory->terimaBarang($row['barang'], [
+                $ref = $row['barang_ref'];
+
+                if ($ref['type'] === 'baru') {
+                    $kode = $ref['attrs']['kode_barang'];
+
+                    if (! isset($barangBaruDibuat[$kode])) {
+                        $attrs = $ref['attrs'];
+
+                        $barangBaruDibuat[$kode] = Barang::create([
+                            'kode_barang' => $attrs['kode_barang'],
+                            'nama_barang' => $attrs['nama_barang'],
+                            'kategori' => $attrs['kategori'],
+                            'satuan' => $attrs['satuan'],
+                            'harga_beli' => $row['harga_beli_satuan'],
+                            'harga_jual' => $attrs['harga_jual'] ?? $this->hargaJual->hitungOtomatis($row['harga_beli_satuan'], $attrs['satuan']),
+                            'stok' => 0,
+                            'stok_minimum' => $attrs['stok_minimum'],
+                        ]);
+                    }
+
+                    $barang = $barangBaruDibuat[$kode];
+                } else {
+                    $barang = $ref['barang'];
+                }
+
+                $this->inventory->terimaBarang($barang, [
                     'qty' => $row['qty'],
                     'harga_beli_satuan' => $row['harga_beli_satuan'],
                     'tanggal_terima' => $row['tanggal_terima'],
@@ -116,8 +165,11 @@ class StockImportController extends Controller
             }
         });
 
-        return redirect()->route('stok-import.create')
-            ->with('success', count($validRows).' batch stok masuk berhasil diimport.');
+        $jumlahBarangBaru = count($barangBaruDibuat);
+        $pesanSukses = count($validRows).' batch stok masuk berhasil diimport';
+        $pesanSukses .= $jumlahBarangBaru > 0 ? " ({$jumlahBarangBaru} barang baru otomatis terdaftar)." : '.';
+
+        return redirect()->route('stok-import.create')->with('success', $pesanSukses);
     }
 
     private function validasiSemuaBaris(array $baris): array
@@ -130,21 +182,26 @@ class StockImportController extends Controller
             $nomorBaris = $entry['baris'];
             $data = $entry['data'];
             $pesan = [];
+            $barangRef = null;
 
             $kodeBarang = trim((string) ($data['kode_barang'] ?? ''));
-            $barang = null;
 
             if ($kodeBarang === '') {
                 $pesan[] = 'kode_barang kosong';
             } else {
                 if (! array_key_exists($kodeBarang, $barangCache)) {
-                    $barangCache[$kodeBarang] = Barang::where('kode_barang', $kodeBarang)->first();
-                }
-                $barang = $barangCache[$kodeBarang];
+                    $resolusi = $this->resolveBarangBaris($kodeBarang, $data);
+                    $barangCache[$kodeBarang] = $resolusi['ref'];
 
-                if (! $barang) {
-                    $pesan[] = "kode_barang \"{$kodeBarang}\" tidak ditemukan di sistem";
+                    if ($resolusi['pesan'] !== []) {
+                        // pesan spesifik untuk baris yang PERTAMA kali mengenalkan kode ini
+                        $pesan = array_merge($pesan, $resolusi['pesan']);
+                    }
+                } elseif ($barangCache[$kodeBarang] === null) {
+                    $pesan[] = "kode_barang \"{$kodeBarang}\" belum terdaftar dan gagal didaftarkan otomatis (lihat baris pertama yang memakai kode ini pada file ini)";
                 }
+
+                $barangRef = $barangCache[$kodeBarang];
             }
 
             $tanggalTerima = $this->parseTanggal($data['tanggal_terima'] ?? null);
@@ -175,14 +232,17 @@ class StockImportController extends Controller
                 }
             }
 
-            if ($pesan !== []) {
+            if ($pesan !== [] || $barangRef === null) {
+                if ($pesan === []) {
+                    $pesan[] = "kode_barang \"{$kodeBarang}\" tidak valid";
+                }
                 $errors[] = ['baris' => $nomorBaris, 'kode_barang' => $kodeBarang, 'pesan' => $pesan];
 
                 continue;
             }
 
             $validRows[] = [
-                'barang' => $barang,
+                'barang_ref' => $barangRef,
                 'tanggal_terima' => $tanggalTerima->toDateString(),
                 'qty' => $qty,
                 'harga_beli_satuan' => $harga,
@@ -193,6 +253,87 @@ class StockImportController extends Controller
         }
 
         return [$errors, $validRows];
+    }
+
+    /**
+     * Mencocokkan kode_barang ke barang yang sudah ada, atau menyiapkan data
+     * untuk mendaftarkan barang baru kalau kode_barang belum dikenal.
+     *
+     * @return array{ref: array{type:string,barang?:Barang,attrs?:array}|null, pesan: array<int,string>}
+     */
+    private function resolveBarangBaris(string $kodeBarang, array $data): array
+    {
+        $existing = Barang::where('kode_barang', $kodeBarang)->first();
+
+        if ($existing) {
+            return ['ref' => ['type' => 'ada', 'barang' => $existing], 'pesan' => []];
+        }
+
+        $pesan = [];
+        $namaBarang = trim((string) ($data['nama_barang'] ?? ''));
+
+        if ($namaBarang === '') {
+            return ['ref' => null, 'pesan' => [
+                "kode_barang \"{$kodeBarang}\" belum terdaftar dan nama_barang tidak diisi untuk mendaftarkannya sebagai barang baru",
+            ]];
+        }
+
+        if (mb_strlen($namaBarang) > 150) {
+            $pesan[] = 'nama_barang maksimal 150 karakter';
+        }
+
+        if (mb_strlen($kodeBarang) > 20) {
+            $pesan[] = 'kode_barang maksimal 20 karakter';
+        }
+
+        $kategori = trim((string) ($data['kategori'] ?? '')) ?: null;
+        if ($kategori !== null && mb_strlen($kategori) > 60) {
+            $pesan[] = 'kategori maksimal 60 karakter';
+        }
+
+        $satuan = trim((string) ($data['satuan'] ?? '')) ?: 'pcs';
+        if (mb_strlen($satuan) > 20) {
+            $pesan[] = 'satuan maksimal 20 karakter';
+        }
+
+        $hargaJual = null;
+        $hargaJualRaw = trim((string) ($data['harga_jual'] ?? ''));
+        if ($hargaJualRaw !== '') {
+            $hargaJual = filter_var($hargaJualRaw, FILTER_VALIDATE_INT);
+            if ($hargaJual === false || $hargaJual < 0) {
+                $pesan[] = 'harga_jual harus angka bulat, minimal 0';
+                $hargaJual = null;
+            }
+        }
+
+        $stokMinimum = 5;
+        $stokMinimumRaw = trim((string) ($data['stok_minimum'] ?? ''));
+        if ($stokMinimumRaw !== '') {
+            $stokMinimum = filter_var($stokMinimumRaw, FILTER_VALIDATE_INT);
+            if ($stokMinimum === false || $stokMinimum < 0) {
+                $pesan[] = 'stok_minimum harus angka bulat, minimal 0';
+                $stokMinimum = 5;
+            }
+        }
+
+        if ($pesan !== []) {
+            return ['ref' => null, 'pesan' => $pesan];
+        }
+
+        return [
+            'ref' => [
+                'type' => 'baru',
+                'attrs' => [
+                    'kode_barang' => $kodeBarang,
+                    'nama_barang' => $namaBarang,
+                    'kategori' => $kategori,
+                    'satuan' => $satuan,
+                    'stok_minimum' => $stokMinimum,
+                    'harga_jual' => $hargaJual,
+                ],
+            ],
+            'pesan' => [],
+        ];
     }
 
     private function parseTanggal(?string $value): ?Carbon

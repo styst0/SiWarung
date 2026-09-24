@@ -4,7 +4,7 @@
 
 <div style="margin-bottom:20px;">
     <h1 style="font-size:18px;font-weight:600;color:var(--text-primary);">Import Stok Masuk</h1>
-    <p style="font-size:13px;color:var(--text-secondary);margin-top:3px;">Masukkan banyak barang sekaligus dari nota pembelian distributor, lewat file CSV.</p>
+    <p style="font-size:13px;color:var(--text-secondary);margin-top:3px;">Masukkan banyak barang sekaligus dari nota pembelian distributor, lewat file CSV — baik menambah stok barang yang sudah ada, maupun mendaftarkan barang baru sekaligus.</p>
 </div>
 
 @if(session('success'))
@@ -22,7 +22,9 @@
     <div class="card-body" style="font-size:13px;color:var(--text-secondary);line-height:1.7;">
         <ol style="margin:0;padding-left:18px;">
             <li>Unduh template di bawah, lalu buka pakai Excel.</li>
-            <li>Isi satu baris untuk setiap barang yang ada di nota pembelian (kode barang harus sudah terdaftar di sistem).</li>
+            <li>Isi satu baris untuk setiap barang yang ada di nota pembelian.</li>
+            <li>Kalau <code>kode_barang</code>-nya <strong>sudah terdaftar</strong> di sistem: kolom <code>nama_barang</code>, <code>kategori</code>, <code>satuan</code>, <code>harga_jual</code>, <code>stok_minimum</code> boleh dikosongkan — cuma stoknya yang ditambah.</li>
+            <li>Kalau <code>kode_barang</code>-nya <strong>belum ada</strong> di sistem: isi minimal <code>nama_barang</code> supaya barang itu otomatis didaftarkan sekaligus diisi stoknya. Kolom lain (kategori, satuan, harga_jual, stok_minimum) opsional — kalau dikosongkan dipakai nilai wajar (satuan "pcs", stok_minimum 5). Kolom <code>harga_jual</code> boleh diisi manual kalau mau harga tertentu — kalau dikosongkan, sistem otomatis menghitungnya sendiri: harga beli + markup (besarnya tergantung <code>satuan</code>, mis. box/dus lebih besar daripada pcs/bungkus), lalu dibulatkan ke kelipatan Rp 500 terdekat supaya harganya genap dan gampang dipakai untuk pembayaran cash.</li>
             <li>Simpan file dari Excel dengan format <strong>CSV</strong> (bukan .xlsx) — pilih "Save As" → "CSV (Comma delimited)".</li>
             <li>Upload file CSV itu di bawah ini.</li>
         </ol>
