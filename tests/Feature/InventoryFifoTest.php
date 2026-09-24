@@ -151,6 +151,32 @@ test('selling more than the available stock is rejected with a validation error'
     expect($barang->fresh()->stok)->toBe(3);
 });
 
+test('a kode_transaksi collision on creation is retried automatically instead of failing the request', function () {
+    $user = User::factory()->create();
+    $barang = Barang::factory()->create(['stok' => 0, 'harga_jual' => 10000]);
+    app(InventoryService::class)->terimaBarang($barang, ['qty' => 5, 'harga_beli_satuan' => 5000]);
+
+    // Rebut lebih dulu kode_transaksi yang akan dihasilkan berikutnya,
+    // supaya permintaan di bawah ini pasti bentrok pada percobaan pertama
+    // (mensimulasikan dua transaksi yang dibuat nyaris bersamaan).
+    $kodeYangDirebut = Transaksi::generateKodeTransaksi();
+    Transaksi::factory()->create(['kode_transaksi' => $kodeYangDirebut, 'user_id' => $user->id]);
+
+    $response = $this->actingAs($user)->post(route('transaksi.store'), [
+        'status' => 'lunas',
+        'total_bayar' => 10000,
+        'items' => [
+            ['barang_id' => $barang->id, 'qty' => 1, 'harga_satuan' => 10000, 'diskon' => 0],
+        ],
+    ]);
+
+    $response->assertRedirect(route('transaksi.index'));
+
+    expect(Transaksi::count())->toBe(2);
+    expect(Transaksi::where('kode_transaksi', $kodeYangDirebut)->count())->toBe(1);
+    expect($barang->fresh()->stok)->toBe(4);
+});
+
 test('cancelling a transaction restores stock to the original batches', function () {
     $user = User::factory()->create();
     $barang = Barang::factory()->create(['stok' => 0]);

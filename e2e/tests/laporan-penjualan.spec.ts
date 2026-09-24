@@ -8,9 +8,9 @@ test.describe("Fitur Laporan Penjualan", () => {
     test.beforeEach(async ({ page }) => {
         const url_login = process.env.LOGIN_API_KEY!;
         await page.goto(url_login);
-        await page.fill('input[name="email"]', "ratih@gmail.com");
+        await page.fill('input[name="email"]', process.env.E2E_EMAIL!);
         await page.waitForTimeout(1000);
-        await page.fill('input[name="password"]', "ratih123");
+        await page.fill('input[name="password"]', process.env.E2E_PASSWORD!);
         await page.waitForTimeout(1000);
         await page.click('button[type="submit"]');
         await page.waitForTimeout(1000);

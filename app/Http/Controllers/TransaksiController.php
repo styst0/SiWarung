@@ -8,6 +8,7 @@ use App\Models\DetailTransaksi;
 use App\Models\DetailTransaksiBatch;
 use App\Models\Transaksi;
 use App\Services\InventoryService;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -87,54 +88,72 @@ class TransaksiController extends Controller
             throw ValidationException::withMessages($errors);
         }
 
-        try {
-            DB::transaction(function () use ($request) {
-                $totalHarga = 0;
-                $items = [];
+        $maksPercobaan = 5;
 
-                foreach ($request->items as $item) {
-                    $diskon = $item['diskon'] ?? 0;
-                    $subtotal = (int) round($item['qty'] * $item['harga_satuan'] * (1 - $diskon / 100));
-                    $totalHarga += $subtotal;
-                    $items[] = array_merge($item, ['subtotal' => $subtotal, 'diskon' => $diskon]);
-                }
+        for ($percobaan = 1; $percobaan <= $maksPercobaan; $percobaan++) {
+            try {
+                DB::transaction(function () use ($request) {
+                    $totalHarga = 0;
+                    $items = [];
 
-                $transaksi = Transaksi::create([
-                    'pelanggan' => $request->pelanggan,
-                    'total_harga' => $totalHarga,
-                    'total_bayar' => $request->total_bayar ?? 0,
-                    'kembalian' => ($request->total_bayar ?? 0) - $totalHarga,
-                    'status' => $request->status,
-                    'catatan' => $request->catatan,
-                    'user_id' => auth()->id(),
-                ]);
+                    foreach ($request->items as $item) {
+                        $diskon = $item['diskon'] ?? 0;
+                        $subtotal = (int) round($item['qty'] * $item['harga_satuan'] * (1 - $diskon / 100));
+                        $totalHarga += $subtotal;
+                        $items[] = array_merge($item, ['subtotal' => $subtotal, 'diskon' => $diskon]);
+                    }
 
-                foreach ($items as $item) {
-                    $barang = Barang::findOrFail($item['barang_id']);
-
-                    $detail = DetailTransaksi::create([
-                        'transaksi_id' => $transaksi->id,
-                        'barang_id' => $item['barang_id'],
-                        'qty' => $item['qty'],
-                        'harga_satuan' => $item['harga_satuan'],
-                        'diskon' => $item['diskon'],
-                        'subtotal' => $item['subtotal'],
+                    $transaksi = Transaksi::create([
+                        'pelanggan' => $request->pelanggan,
+                        'total_harga' => $totalHarga,
+                        'total_bayar' => $request->total_bayar ?? 0,
+                        'kembalian' => ($request->total_bayar ?? 0) - $totalHarga,
+                        'status' => $request->status,
+                        'catatan' => $request->catatan,
+                        'user_id' => auth()->id(),
                     ]);
 
-                    $rincianBatch = $this->inventory->konsumsiStok($barang, $item['qty'], 'penjualan', $transaksi);
+                    foreach ($items as $item) {
+                        $barang = Barang::findOrFail($item['barang_id']);
 
-                    foreach ($rincianBatch as $penggunaan) {
-                        DetailTransaksiBatch::create([
-                            'detail_transaksi_id' => $detail->id,
-                            'stock_batch_id' => $penggunaan['batch']->id,
-                            'qty' => $penggunaan['qty'],
-                            'harga_beli_satuan' => $penggunaan['harga_beli_satuan'],
+                        $detail = DetailTransaksi::create([
+                            'transaksi_id' => $transaksi->id,
+                            'barang_id' => $item['barang_id'],
+                            'qty' => $item['qty'],
+                            'harga_satuan' => $item['harga_satuan'],
+                            'diskon' => $item['diskon'],
+                            'subtotal' => $item['subtotal'],
                         ]);
+
+                        $rincianBatch = $this->inventory->konsumsiStok($barang, $item['qty'], 'penjualan', $transaksi);
+
+                        foreach ($rincianBatch as $penggunaan) {
+                            DetailTransaksiBatch::create([
+                                'detail_transaksi_id' => $detail->id,
+                                'stock_batch_id' => $penggunaan['batch']->id,
+                                'qty' => $penggunaan['qty'],
+                                'harga_beli_satuan' => $penggunaan['harga_beli_satuan'],
+                            ]);
+                        }
                     }
+                });
+
+                break;
+            } catch (InsufficientStockException $e) {
+                throw ValidationException::withMessages(['items' => $e->getMessage()]);
+            } catch (QueryException $e) {
+                // Dua transaksi dibuat nyaris bersamaan bisa menghasilkan
+                // kode_transaksi yang sama sebelum salah satunya selesai
+                // disimpan (lihat Transaksi::generateKodeTransaksi()).
+                // DB::transaction() sudah membatalkan seluruh perubahan
+                // (termasuk konsumsi stok) saat batasan unik itu gagal,
+                // jadi aman diulang dari awal dengan kode yang baru.
+                $bentrokKodeTransaksi = str_contains($e->getMessage(), 'kode_transaksi');
+
+                if (! $bentrokKodeTransaksi || $percobaan === $maksPercobaan) {
+                    throw $e;
                 }
-            });
-        } catch (InsufficientStockException $e) {
-            throw ValidationException::withMessages(['items' => $e->getMessage()]);
+            }
         }
 
         return redirect()->route('transaksi.index')

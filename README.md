@@ -1,58 +1,94 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# SiWarung
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+SiWarung adalah sistem informasi manajemen inventaris berbasis web untuk warung/toko kelontong skala mikro. Sistem ini dikembangkan sebagai Karya Terapan (Tugas Akhir) oleh **I Kadek Indra Satya Ananda** (NIM 2301020078, Program Studi Informatika, Primakara University), dan telah diimplementasikan serta dipakai secara operasional di **Warung Bu Ratih**.
 
-## About Laravel
+Fokus utama SiWarung adalah pencatatan stok berbasis batch dengan konsumsi **First In First Out (FIFO)**, sehingga harga pokok penjualan (HPP), laporan laba rugi, dan pemantauan barang mendekati kedaluwarsa dapat dihitung secara akurat per batch — bukan hanya berdasarkan rata-rata harga beli.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Fitur utama
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+| Modul | Fitur |
+|---|---|
+| Autentikasi & profil | Masuk, keluar, dan pengelolaan profil (Laravel Breeze) |
+| Dashboard | Ringkasan penjualan, stok rendah, peringatan kedaluwarsa, dan pergerakan stok 7 hari terakhir |
+| Data barang | Tambah, ubah, hapus, pencarian, serta filter kategori dan stok rendah |
+| Penerimaan barang | Stok masuk membentuk batch baru dengan harga beli dan tanggal kedaluwarsa masing-masing |
+| Impor stok via CSV | Templat unduhan, validasi seluruh baris, simpan semua-atau-tidak-sama-sekali, dan pendaftaran otomatis barang baru |
+| Markup harga otomatis | Menghitung harga jual dari harga beli berdasarkan satuan barang, dibulatkan ke kelipatan Rp500; tetap bisa diisi manual |
+| Penyesuaian stok | Penyesuaian masuk/keluar manual beserta riwayat pergerakan stok |
+| Transaksi penjualan | Status lunas/piutang, validasi stok, konsumsi FIFO otomatis, dan rincian batch yang terpakai |
+| Pembatalan & nota | Pembatalan transaksi memulihkan stok ke batch asal; cetak nota |
+| Kedaluwarsa | Penanda, halaman pemantauan khusus, dan perintah terjadwal harian |
+| Penyusutan | Pencatatan penyusutan per batch dengan alasan, dan laporan penyusutan |
+| Laporan | Laporan penjualan, laba rugi berbasis HPP per batch, dan laporan penyusutan |
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Teknologi
 
-## Learning Laravel
+- PHP 8.3+ dengan Laravel 13
+- SQLite (basis data satu berkas, sesuai untuk usaha mikro satu lokasi)
+- Blade, Tailwind CSS, dan Alpine.js untuk antarmuka
+- [Pest](https://pestphp.com/) untuk pengujian unit/feature (backend)
+- [Playwright](https://playwright.dev/) untuk pengujian end-to-end (e2e/)
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Menjalankan secara lokal
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Cara cepat (macOS)
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+Klik dua kali **`Jalankan SiWarung.command`**, atau jalankan lewat terminal:
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+bash start.sh
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Skrip ini otomatis memeriksa dependensi, menyiapkan `.env` dan `APP_KEY`, menjalankan migrasi, lalu menyalakan server di `http://127.0.0.1:8000` dan membuka browser. Opsi yang tersedia:
 
-## Contributing
+```
+bash start.sh [opsi]
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+  --lan          bisa dibuka dari HP/laptop lain yang satu WiFi
+  --tunnel       buat alamat publik sementara (Cloudflare Tunnel) untuk demo/sidang
+  --port ANGKA   pakai port tertentu (bawaan 8000)
+  --fresh        hapus semua data lalu isi ulang dengan data demo
+  --no-open      jangan buka browser otomatis
+  -h, --help     tampilkan bantuan
+```
 
-## Code of Conduct
+### Cara manual
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```bash
+composer install
+npm install
 
-## Security Vulnerabilities
+cp .env.example .env
+php artisan key:generate
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+touch database/database.sqlite
+php artisan migrate
 
-## License
+npm run build   # atau `npm run dev` saat mengembangkan tampilan
+php artisan serve
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Aplikasi dapat diakses di `http://127.0.0.1:8000`.
+
+## Menjalankan pengujian
+
+Pengujian backend (Pest):
+
+```bash
+php artisan test
+```
+
+Pengujian end-to-end (Playwright), dari dalam folder `e2e/`:
+
+```bash
+cd e2e
+npm install
+cp .env.example .env   # isi E2E_EMAIL/E2E_PASSWORD dan *_API_KEY sesuai akun & server lokal
+npx playwright test
+```
+
+Kredensial akun untuk pengujian e2e **tidak** ditulis langsung di berkas `.spec.ts` — isi lewat `e2e/.env` (lihat `e2e/.env.example`) agar tidak ikut tersimpan di riwayat Git.
+
+## Lisensi
+
+Proyek ini dikembangkan untuk keperluan akademik (Karya Terapan/Tugas Akhir) di Primakara University.
