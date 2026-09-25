@@ -108,7 +108,7 @@
             Saat barang ini terjual, stok diambil lebih dulu dari batch paling atas (diterima paling awal / First In First Out).
         </p>
         <div style="overflow-x:auto;">
-            <table style="width:100%;border-collapse:collapse;font-size:13px;">
+            <table class="batch-table" style="width:100%;border-collapse:collapse;font-size:13px;">
                 <thead>
                     <tr style="text-align:left;color:var(--text-secondary);font-size:11px;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid #F0F0EC;">
                         <th style="padding:10px 8px;">Batch</th>
@@ -122,9 +122,9 @@
                 <tbody>
                     @forelse($batches as $batch)
                         <tr style="border-bottom:1px solid #F5F5F2;vertical-align:top;">
-                            <td style="padding:10px 8px;font-weight:500;">{{ $batch->kode_batch }}</td>
-                            <td style="padding:10px 8px;">{{ $batch->tanggal_terima->format('d M Y') }}</td>
-                            <td style="padding:10px 8px;">
+                            <td data-label="Batch" style="padding:10px 8px;font-weight:500;">{{ $batch->kode_batch }}</td>
+                            <td data-label="Diterima" style="padding:10px 8px;">{{ $batch->tanggal_terima->format('d M Y') }}</td>
+                            <td data-label="Kedaluwarsa" style="padding:10px 8px;">
                                 @if(!$batch->tanggal_kedaluwarsa)
                                     <span style="color:var(--text-muted);">—</span>
                                 @elseif($batch->status_kedaluwarsa === 'kedaluwarsa')
@@ -135,9 +135,9 @@
                                     {{ $batch->tanggal_kedaluwarsa->format('d M Y') }}
                                 @endif
                             </td>
-                            <td style="padding:10px 8px;">{{ $batch->qty_tersisa }} / {{ $batch->qty_masuk }} {{ $barang->satuan }}</td>
-                            <td style="padding:10px 8px;">Rp {{ number_format($batch->harga_beli_satuan, 0, ',', '.') }}</td>
-                            <td style="padding:10px 8px;">
+                            <td data-label="Sisa" style="padding:10px 8px;">{{ $batch->qty_tersisa }} / {{ $batch->qty_masuk }} {{ $barang->satuan }}</td>
+                            <td data-label="Harga Beli" style="padding:10px 8px;">Rp {{ number_format($batch->harga_beli_satuan, 0, ',', '.') }}</td>
+                            <td class="batch-actions" style="padding:10px 8px;white-space:nowrap;">
                                 <details style="margin-bottom:8px;">
                                     <summary style="cursor:pointer;color:var(--text-secondary);font-size:12px;">Ubah tanggal kedaluwarsa</summary>
                                     <form action="{{ route('barang.batch.tanggal-kedaluwarsa', [$barang, $batch]) }}" method="POST" style="margin-top:8px;display:flex;flex-direction:column;gap:6px;min-width:220px;">
@@ -178,3 +178,56 @@
 </div>
 
 @endsection
+
+@push('styles')
+<style>
+    @media (max-width: 700px) {
+        .batch-table thead { display: none; }
+        .batch-table, .batch-table tbody, .batch-table tr, .batch-table td { display: block; width: 100%; }
+        .batch-table tr {
+            border: 1px solid #F0F0EC;
+            border-radius: var(--radius-md);
+            margin-bottom: 10px;
+            padding: 4px 12px;
+        }
+        .batch-table tr:last-child { margin-bottom: 0; }
+        .batch-table td {
+            border-bottom: none !important;
+            padding: 8px 0 !important;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px;
+            border-top: 1px solid #F5F5F2;
+        }
+        .batch-table td:first-child { border-top: none; }
+        .batch-table td::before {
+            content: attr(data-label);
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            flex-shrink: 0;
+            padding-top: 1px;
+        }
+        .batch-table td.batch-actions {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 8px;
+            white-space: normal;
+        }
+        .batch-table td.batch-actions::before { content: none; }
+        .batch-table td.batch-actions details { margin-bottom: 0 !important; }
+        .batch-table td.batch-actions summary {
+            display: block;
+            text-align: center;
+            padding: 8px 10px;
+            border: 1px solid #D2D2CC;
+            border-radius: var(--radius-sm);
+            list-style: none;
+        }
+        .batch-table td.batch-actions summary::-webkit-details-marker { display: none; }
+        .batch-table td.batch-actions form { min-width: 0 !important; }
+    }
+</style>
+@endpush

@@ -81,8 +81,8 @@
     <div class="brand">
         <div class="brand-icon">
             <svg width="22" height="22" viewBox="0 0 16 16" fill="none">
-                <path d="M2 6l6-4 6 4v7H2V6z" fill="white" opacity=".9"/>
-                <rect x="5.5" y="9" width="5" height="4" rx=".5" fill="#185FA5"/>
+                <path d="M8 1L14.5 4.5V11.5L8 15L1.5 11.5V4.5L8 1Z" fill="white" opacity=".9"/>
+                <path d="M1.5 4.5L8 8L14.5 4.5M8 8V15" stroke="#185FA5" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
         </div>
         <div class="brand-name">Toko Ratih</div>
