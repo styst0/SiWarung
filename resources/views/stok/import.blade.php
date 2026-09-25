@@ -15,31 +15,16 @@
     <div class="alert alert-danger">{{ session('error') }}</div>
 @endif
 
-<div class="card" style="margin-bottom:16px;">
-    <div class="card-header">
-        <span class="card-title">Cara pakai</span>
-    </div>
-    <div class="card-body" style="font-size:13px;color:var(--text-secondary);line-height:1.7;">
-        <ol style="margin:0;padding-left:18px;">
-            <li>Unduh template di bawah, lalu buka pakai Excel.</li>
-            <li>Isi satu baris untuk setiap barang yang ada di nota pembelian.</li>
-            <li>Kalau <code>kode_barang</code>-nya <strong>sudah terdaftar</strong> di sistem: kolom <code>nama_barang</code>, <code>kategori</code>, <code>satuan</code>, <code>harga_jual</code>, <code>stok_minimum</code> boleh dikosongkan — cuma stoknya yang ditambah.</li>
-            <li>Kalau <code>kode_barang</code>-nya <strong>belum ada</strong> di sistem: isi minimal <code>nama_barang</code> supaya barang itu otomatis didaftarkan sekaligus diisi stoknya. Kolom lain (kategori, satuan, harga_jual, stok_minimum) opsional — kalau dikosongkan dipakai nilai wajar (satuan "pcs", stok_minimum 5). Kolom <code>harga_jual</code> boleh diisi manual kalau mau harga tertentu — kalau dikosongkan, sistem otomatis menghitungnya sendiri: harga beli + markup (besarnya tergantung <code>satuan</code>, mis. box/dus lebih besar daripada pcs/bungkus), lalu dibulatkan ke kelipatan Rp 500 terdekat supaya harganya genap dan gampang dipakai untuk pembayaran cash.</li>
-            <li>Simpan file dari Excel dengan format <strong>CSV</strong> (bukan .xlsx) — pilih "Save As" → "CSV (Comma delimited)".</li>
-            <li>Upload file CSV itu di bawah ini.</li>
-        </ol>
-        <a href="{{ route('stok-import.template') }}" class="btn btn-outline" style="margin-top:14px;">
-            <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 2v8m0 0-3-3m3 3 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.5 11v1.5A1.5 1.5 0 0 0 4 14h8a1.5 1.5 0 0 0 1.5-1.5V11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-            Download Template CSV
-        </a>
-    </div>
-</div>
-
 <div class="card" style="max-width:560px;">
     <div class="card-header">
         <span class="card-title">Upload File</span>
     </div>
     <div class="card-body">
+        <a href="{{ route('stok-import.template') }}" class="btn btn-outline" style="margin-bottom:16px;">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 2v8m0 0-3-3m3 3 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.5 11v1.5A1.5 1.5 0 0 0 4 14h8a1.5 1.5 0 0 0 1.5-1.5V11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Download Template CSV
+        </a>
+
         <form action="{{ route('stok-import.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
 

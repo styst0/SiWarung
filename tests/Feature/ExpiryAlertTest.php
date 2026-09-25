@@ -130,3 +130,60 @@ test('the sidebar link and dashboard alert both point to the dedicated expiry pa
     $response->assertSee(route('barang-kedaluwarsa.index'), false);
     $response->assertDontSee('href="#kedaluwarsa"', false);
 });
+
+test('a batch expiry date can be set retroactively from the item detail page', function () {
+    $user = User::factory()->create();
+    $barang = Barang::factory()->create();
+    $batch = StockBatch::factory()->for($barang)->create([
+        'tanggal_kedaluwarsa' => null,
+    ]);
+
+    $tanggal = now()->addDays(10)->toDateString();
+
+    $response = $this->actingAs($user)->patch(route('barang.batch.tanggal-kedaluwarsa', [$barang, $batch]), [
+        'tanggal_kedaluwarsa' => $tanggal,
+    ]);
+
+    $response->assertRedirect(route('barang.show', $barang));
+    $response->assertSessionHas('success');
+    expect($batch->fresh()->tanggal_kedaluwarsa->toDateString())->toBe($tanggal);
+});
+
+test('a batch expiry date can be updated or cleared again', function () {
+    $user = User::factory()->create();
+    $barang = Barang::factory()->create();
+    $batch = StockBatch::factory()->for($barang)->create([
+        'tanggal_kedaluwarsa' => now()->addDays(5)->toDateString(),
+    ]);
+
+    $response = $this->actingAs($user)->patch(route('barang.batch.tanggal-kedaluwarsa', [$barang, $batch]), [
+        'tanggal_kedaluwarsa' => null,
+    ]);
+
+    $response->assertRedirect(route('barang.show', $barang));
+    expect($batch->fresh()->tanggal_kedaluwarsa)->toBeNull();
+});
+
+test('editing a batch expiry date for a batch belonging to another item is rejected', function () {
+    $user = User::factory()->create();
+    $barangA = Barang::factory()->create();
+    $barangB = Barang::factory()->create();
+    $batch = StockBatch::factory()->for($barangB)->create();
+
+    $response = $this->actingAs($user)->patch(route('barang.batch.tanggal-kedaluwarsa', [$barangA, $batch]), [
+        'tanggal_kedaluwarsa' => now()->addDays(3)->toDateString(),
+    ]);
+
+    $response->assertNotFound();
+});
+
+test('the item detail page offers a control to edit each batch expiry date', function () {
+    $user = User::factory()->create();
+    $barang = Barang::factory()->create();
+    StockBatch::factory()->for($barang)->create(['tanggal_kedaluwarsa' => null]);
+
+    $response = $this->actingAs($user)->get(route('barang.show', $barang));
+
+    $response->assertOk();
+    $response->assertSee('Ubah tanggal kedaluwarsa');
+});

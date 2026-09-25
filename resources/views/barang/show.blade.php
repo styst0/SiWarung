@@ -138,6 +138,16 @@
                             <td style="padding:10px 8px;">{{ $batch->qty_tersisa }} / {{ $batch->qty_masuk }} {{ $barang->satuan }}</td>
                             <td style="padding:10px 8px;">Rp {{ number_format($batch->harga_beli_satuan, 0, ',', '.') }}</td>
                             <td style="padding:10px 8px;">
+                                <details style="margin-bottom:8px;">
+                                    <summary style="cursor:pointer;color:var(--text-secondary);font-size:12px;">Ubah tanggal kedaluwarsa</summary>
+                                    <form action="{{ route('barang.batch.tanggal-kedaluwarsa', [$barang, $batch]) }}" method="POST" style="margin-top:8px;display:flex;flex-direction:column;gap:6px;min-width:220px;">
+                                        @csrf
+                                        @method('PATCH')
+                                        <input type="date" name="tanggal_kedaluwarsa" value="{{ $batch->tanggal_kedaluwarsa?->format('Y-m-d') }}"
+                                            style="padding:6px 8px;border:1px solid #D2D2CC;border-radius:var(--radius-sm);font-size:12px;">
+                                        <button type="submit" class="btn btn-outline" style="font-size:12px;padding:5px 10px;">Simpan</button>
+                                    </form>
+                                </details>
                                 <details>
                                     <summary style="cursor:pointer;color:var(--danger-text);font-size:12px;">Catat penyusutan</summary>
                                     <form action="{{ route('barang.batch.penyusutan', [$barang, $batch]) }}" method="POST" style="margin-top:8px;display:flex;flex-direction:column;gap:6px;min-width:220px;">

@@ -33,6 +33,23 @@ class StockBatchController extends Controller
         ))->with('title', 'Barang Kedaluwarsa');
     }
 
+    public function updateTanggalKedaluwarsa(Request $request, Barang $barang, StockBatch $batch)
+    {
+        abort_unless($batch->barang_id === $barang->id, 404);
+
+        $validated = $request->validate([
+            'tanggal_kedaluwarsa' => ['nullable', 'date'],
+        ]);
+
+        $batch->update(['tanggal_kedaluwarsa' => $validated['tanggal_kedaluwarsa']]);
+
+        $pesan = $validated['tanggal_kedaluwarsa']
+            ? "Tanggal kedaluwarsa batch \"{$batch->kode_batch}\" berhasil disimpan."
+            : "Tanggal kedaluwarsa batch \"{$batch->kode_batch}\" dikosongkan.";
+
+        return redirect()->route('barang.show', $barang)->with('success', $pesan);
+    }
+
     public function penyusutan(Request $request, Barang $barang, StockBatch $batch)
     {
         abort_unless($batch->barang_id === $barang->id, 404);

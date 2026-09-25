@@ -22,6 +22,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('barang/{barang}/stok-masuk', [BarangController::class, 'stockIn'])->name('barang.stok-masuk');
     Route::post('barang/{barang}/stok-masuk', [BarangController::class, 'storeStockIn'])->name('barang.stok-masuk.store');
     Route::post('barang/{barang}/batch/{batch}/penyusutan', [StockBatchController::class, 'penyusutan'])->name('barang.batch.penyusutan');
+    Route::patch('barang/{barang}/batch/{batch}/tanggal-kedaluwarsa', [StockBatchController::class, 'updateTanggalKedaluwarsa'])->name('barang.batch.tanggal-kedaluwarsa');
     Route::get('barang-kedaluwarsa', [StockBatchController::class, 'kedaluwarsa'])->name('barang-kedaluwarsa.index');
 
     Route::get('stock-movements', [StockMovementController::class, 'index'])->name('stock-movements.index');
